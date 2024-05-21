@@ -1,15 +1,21 @@
 package main
 
 import (
-	"boilerplate/database"
-	"boilerplate/handlers"
+	"database/sql"
+	"fmt"
+	"log"
+	"os"
+
+	"grail/database"
+	"grail/handlers"
 
 	"flag"
-	"log"
 
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
+	"github.com/joho/godotenv"
 )
 
 var (
@@ -17,7 +23,31 @@ var (
 	prod = flag.Bool("prod", false, "Enable prefork in Production")
 )
 
+func createDatabase(db *sql.DB, dbName string) error {
+    // Create the database if it doesn't exist
+    _, err := db.Exec(fmt.Sprintf("CREATE DATABASE IF NOT EXISTS %s", dbName))
+    return err
+}
+
+
 func main() {
+	err := godotenv.Load()
+    if err != nil {
+        log.Fatal("Error loading .env file")
+    }
+
+    // Database connection string
+    dsn := os.Getenv("DB_USER") + ":" + os.Getenv("DB_PASSWORD") + "@tcp(" + os.Getenv("DB_HOST") + ":" + os.Getenv("DB_PORT") + ")/" + os.Getenv("DB_NAME")
+    db, err := sql.Open("mysql", dsn)
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer db.Close()
+
+    // Verify the connection
+    if err := db.Ping(); err != nil {
+        log.Fatal(err)
+    }
 	// Parse command-line flags
 	flag.Parse()
 
