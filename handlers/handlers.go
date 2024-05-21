@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"boilerplate/database"
-	"boilerplate/models"
+	"grails/database"
+	"grails/models"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/utils"

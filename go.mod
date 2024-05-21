@@ -1,4 +1,4 @@
-module grail
+module grails
 
 go 1.19
 

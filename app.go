@@ -6,8 +6,8 @@ import (
 	"log"
 	"os"
 
-	"grail/database"
-	"grail/handlers"
+	"grails/database"
+	"grails/handlers"
 
 	"flag"
 
@@ -38,22 +38,29 @@ func main() {
 
     // Database connection string
     dsn := os.Getenv("DB_USER") + ":" + os.Getenv("DB_PASSWORD") + "@tcp(" + os.Getenv("DB_HOST") + ":" + os.Getenv("DB_PORT") + ")/" + os.Getenv("DB_NAME")
-    db, err := sql.Open("mysql", dsn)
+    dbNot, err := sql.Open("mysql", dsn)
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer dbNot.Close()
+
+    // Verify the connection
+    if err := dbNot.Ping(); err != nil {
+        log.Fatal(err)
+    }
+
+	// Create the
+	err = createDatabase(dbNot, os.Getenv("DB_NAME"))
+    if err != nil {
+        log.Fatalf("Failed to create database: %v", err)
+    }
+
+	dsnWithDB := os.Getenv("DB_USER") + ":" + os.Getenv("DB_PASSWORD") + "@tcp(" + os.Getenv("DB_HOST") + ":" + os.Getenv("DB_PORT") + ")/" + os.Getenv("DB_NAME")
+    db, err := sql.Open("mysql", dsnWithDB)
     if err != nil {
         log.Fatal(err)
     }
     defer db.Close()
-
-    // Verify the connection
-    if err := db.Ping(); err != nil {
-        log.Fatal(err)
-    }
-
-	// Create the database
-	err = createDatabase(db, os.Getenv("DB_PASSWORD"))
-    if err != nil {
-        log.Fatalf("Failed to create database: %v", err)
-    }
 
 	// Parse command-line flags
 	flag.Parse()

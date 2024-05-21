@@ -1,7 +1,7 @@
 package database
 
 import (
-	"boilerplate/models"
+	"grails/models"
 	"fmt"
 	"sync"
 )
