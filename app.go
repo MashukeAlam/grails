@@ -48,38 +48,37 @@ func generateMigration(tableName string, fields []Field) {
 		log.Fatalf("Failed to create migrations directory: %v", err)
 	}
 
-	// Create timestamp for migration file name
-	timestamp := time.Now().Format("20060102150405")
-
-	// Define the file names
-	upFileName := fmt.Sprintf("%s/%s_create_%s_table.up.sql", migrationDir, timestamp, tableName)
-	downFileName := fmt.Sprintf("%s/%s_create_%s_table.down.sql", migrationDir, timestamp, tableName)
-
 	// Generate the SQL for the UP migration
-	upSQL := fmt.Sprintf("CREATE TABLE %s (\n", tableName)
+	upSQL := "-- +goose Up\n\n"
+	upSQL += fmt.Sprintf("CREATE TABLE %s (\n", tableName)
 	upSQL += "  id INT AUTO_INCREMENT PRIMARY KEY,\n"
 	for _, field := range fields {
 		upSQL += fmt.Sprintf("  %s %s,\n", field.Name, field.Type)
 	}
 	upSQL += "  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n"
 	upSQL += ");"
-
+	
 	// Generate the SQL for the DOWN migration
-	downSQL := fmt.Sprintf("DROP TABLE %s;", tableName)
-
+	// downSQL := "-- +goose Down\n\n"
+	// downSQL += fmt.Sprintf("DROP TABLE %s;", tableName)
+	
 	// Write the UP migration file
+	time.Sleep(time.Millisecond * 1000)
+	upFileName := fmt.Sprintf("%s/%s_create_%s_table.up.sql", migrationDir, time.Now().Format("20060102150405"), tableName)
 	err = os.WriteFile(upFileName, []byte(upSQL), 0644)
 	if err != nil {
 		log.Fatalf("Failed to write UP migration file: %v", err)
 	}
-
+	
 	// Write the DOWN migration file
-	err = os.WriteFile(downFileName, []byte(downSQL), 0644)
-	if err != nil {
-		log.Fatalf("Failed to write DOWN migration file: %v", err)
-	}
+	// time.Sleep(time.Millisecond * 1000)
+	// downFileName := fmt.Sprintf("%s/%s_create_%s_table.down.sql", migrationDir, time.Now().Format("20060102150405"), tableName)
+	// err = os.WriteFile(downFileName, []byte(downSQL), 0644)
+	// if err != nil {
+	// 	log.Fatalf("Failed to write DOWN migration file: %v", err)
+	// }
 
-	fmt.Printf("Migration files %s and %s created successfully.\n", upFileName, downFileName)
+	fmt.Printf("Migration files %s created successfully.\n", upFileName)
 }
 
 
@@ -175,15 +174,24 @@ func main() {
 	// Handle not founds
 	app.Use(handlers.NotFound)
 
-	// tableName := "users"
-	// fields := []Field{
+	// tableName1 := "users"
+	// fields1 := []Field{
 	// 	{Name: "name", Type: "VARCHAR(100) NOT NULL"},
 	// 	{Name: "email", Type: "VARCHAR(100) NOT NULL UNIQUE"},
 	// }
 
-	// Generate the migration files
-	// generateMigration(tableName, fields)
+	// // Generate the migration files
+	// generateMigration(tableName1, fields1)
 
-	// Listen on port 5000
+	// tableName2 := "tweets"
+	// fields2 := []Field{
+	// 	{Name: "body", Type: "VARCHAR(300) NOT NULL"},
+	// 	{Name: "title", Type: "VARCHAR(100) NOT NULL"},
+	// }
+
+	// // Generate the migration files
+	// generateMigration(tableName2, fields2)
+
+	//Listen on port 5000
 	log.Fatal(app.Listen(*port)) 
 }

@@ -23,7 +23,7 @@ func getDatabaseURL() string {
 	port := os.Getenv("DB_PORT")
 	name := os.Getenv("DB_NAME")
 
-	return fmt.Sprintf("mysql://%s:%s@tcp(%s:%s)/%s", user, password, host, port, name)
+	return fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", user, password, host, port, name)
 }
 
 func runGoose(direction string) error {
