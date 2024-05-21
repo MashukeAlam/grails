@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"time"
 
 	"grails/database"
 	"grails/handlers"
@@ -82,6 +83,7 @@ func generateMigration(tableName string, fields []Field) {
 
 
 func main() {
+	
 	err := godotenv.Load()
     if err != nil {
         log.Fatal("Error loading .env file")
@@ -89,7 +91,16 @@ func main() {
 		fmt.Println("ENV Loaded.")
 	}
 
-
+	// if len(os.Args) > 1 {
+	// 	// Check for migration command
+	// 	if os.Args[1] == "migrate" && len(os.Args) == 3 {
+	// 		migrate(os.Args[2]) // Run the migrate function with the direction
+	// 		return
+	// 	} else {
+	// 		log.Println("Usage: app migrate <up|down>")
+	// 		os.Exit(1)
+	// 	}
+	// }
     // Database connection string
     dsn := os.Getenv("DB_USER") + ":" + os.Getenv("DB_PASSWORD") + "@tcp(" + os.Getenv("DB_HOST") + ":" + os.Getenv("DB_PORT") + ")/"
     dbNot, err := sql.Open("mysql", dsn)
@@ -162,6 +173,15 @@ func main() {
 
 	// Handle not founds
 	app.Use(handlers.NotFound)
+
+	// tableName := "users"
+	// fields := []Field{
+	// 	{Name: "name", Type: "VARCHAR(100) NOT NULL"},
+	// 	{Name: "email", Type: "VARCHAR(100) NOT NULL UNIQUE"},
+	// }
+
+	// Generate the migration files
+	// generateMigration(tableName, fields)
 
 	// Listen on port 5000
 	log.Fatal(app.Listen(*port)) 
