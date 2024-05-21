@@ -31,6 +31,55 @@ func createDatabase(db *sql.DB, dbName string) error {
     return err
 }
 
+type Field struct {
+	Name string
+	Type string
+}
+
+func generateMigration(tableName string, fields []Field) {
+	// Define the migration directory
+	migrationDir := "migrations"
+
+	// Ensure the migration directory exists
+	err := os.MkdirAll(migrationDir, os.ModePerm)
+	if err != nil {
+		log.Fatalf("Failed to create migrations directory: %v", err)
+	}
+
+	// Create timestamp for migration file name
+	timestamp := time.Now().Format("20060102150405")
+
+	// Define the file names
+	upFileName := fmt.Sprintf("%s/%s_create_%s_table.up.sql", migrationDir, timestamp, tableName)
+	downFileName := fmt.Sprintf("%s/%s_create_%s_table.down.sql", migrationDir, timestamp, tableName)
+
+	// Generate the SQL for the UP migration
+	upSQL := fmt.Sprintf("CREATE TABLE %s (\n", tableName)
+	upSQL += "  id INT AUTO_INCREMENT PRIMARY KEY,\n"
+	for _, field := range fields {
+		upSQL += fmt.Sprintf("  %s %s,\n", field.Name, field.Type)
+	}
+	upSQL += "  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n"
+	upSQL += ");"
+
+	// Generate the SQL for the DOWN migration
+	downSQL := fmt.Sprintf("DROP TABLE %s;", tableName)
+
+	// Write the UP migration file
+	err = os.WriteFile(upFileName, []byte(upSQL), 0644)
+	if err != nil {
+		log.Fatalf("Failed to write UP migration file: %v", err)
+	}
+
+	// Write the DOWN migration file
+	err = os.WriteFile(downFileName, []byte(downSQL), 0644)
+	if err != nil {
+		log.Fatalf("Failed to write DOWN migration file: %v", err)
+	}
+
+	fmt.Printf("Migration files %s and %s created successfully.\n", upFileName, downFileName)
+}
+
 
 func main() {
 	err := godotenv.Load()
@@ -104,7 +153,6 @@ func main() {
 	v1 := app.Group("/api/v1")
 
 	// Bind handlers
-	v1.Get("/", handlers.HomePage)
 	v1.Get("/users", handlers.UserList)
 	v1.Post("/users", handlers.UserCreate)
 
