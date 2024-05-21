@@ -2,14 +2,14 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
-	"log"
-	"os"
 
 	"grails/database"
 	"grails/handlers"
 
 	"flag"
+	"fmt"
+	"log"
+	"os"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gofiber/fiber/v2"
@@ -99,6 +99,6 @@ func main() {
 	// Handle not founds
 	app.Use(handlers.NotFound)
 
-	// Listen on port 3000
-	log.Fatal(app.Listen(*port)) // go run app.go -port=:3000
+	// Listen on port 5000
+	log.Fatal(app.Listen(*port)) 
 }
