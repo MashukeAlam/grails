@@ -48,6 +48,13 @@ func main() {
     if err := db.Ping(); err != nil {
         log.Fatal(err)
     }
+
+	// Create the database
+	err = createDatabase(db, os.Getenv("DB_PASSWORD"))
+    if err != nil {
+        log.Fatalf("Failed to create database: %v", err)
+    }
+
 	// Parse command-line flags
 	flag.Parse()
 
