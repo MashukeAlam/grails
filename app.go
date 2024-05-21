@@ -34,14 +34,19 @@ func main() {
 	err := godotenv.Load()
     if err != nil {
         log.Fatal("Error loading .env file")
-    }
+    } else {
+		fmt.Println("ENV Loaded.")
+	}
+
 
     // Database connection string
-    dsn := os.Getenv("DB_USER") + ":" + os.Getenv("DB_PASSWORD") + "@tcp(" + os.Getenv("DB_HOST") + ":" + os.Getenv("DB_PORT") + ")/" + os.Getenv("DB_NAME")
+    dsn := os.Getenv("DB_USER") + ":" + os.Getenv("DB_PASSWORD") + "@tcp(" + os.Getenv("DB_HOST") + ":" + os.Getenv("DB_PORT") + ")/"
     dbNot, err := sql.Open("mysql", dsn)
     if err != nil {
         log.Fatal(err)
-    }
+    } else {
+		fmt.Println("Database server connected.")
+	}
     defer dbNot.Close()
 
     // Verify the connection
@@ -53,13 +58,17 @@ func main() {
 	err = createDatabase(dbNot, os.Getenv("DB_NAME"))
     if err != nil {
         log.Fatalf("Failed to create database: %v", err)
-    }
+    } else {
+		fmt.Println("Database connected.")
+	}
 
 	dsnWithDB := os.Getenv("DB_USER") + ":" + os.Getenv("DB_PASSWORD") + "@tcp(" + os.Getenv("DB_HOST") + ":" + os.Getenv("DB_PORT") + ")/" + os.Getenv("DB_NAME")
     db, err := sql.Open("mysql", dsnWithDB)
     if err != nil {
         log.Fatal(err)
-    }
+    } else {
+		fmt.Println("Database ready.")
+	}
     defer db.Close()
 
 	// Parse command-line flags
