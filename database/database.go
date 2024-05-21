@@ -14,7 +14,7 @@ var (
 // Connect with database
 func Connect() {
 	db = make([]*models.User, 0)
-	fmt.Println("Connected with Database")
+	fmt.Println("Connected with db")
 }
 
 func Insert(user *models.User) {
