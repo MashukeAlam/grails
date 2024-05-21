@@ -8,6 +8,12 @@ import (
 	"github.com/gofiber/fiber/v2/utils"
 )
 
+func HomePage(c *fiber.Ctx) error {
+	return c.Render("index", fiber.Map{
+		"Title": "Hello, Fiber with Slim!",
+	})
+}
+
 // UserList returns a list of users
 func UserList(c *fiber.Ctx) error {
 	users := database.Get()
