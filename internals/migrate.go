@@ -1,4 +1,4 @@
-package main
+package internals
 
 import (
 	"fmt"
@@ -38,7 +38,7 @@ func runGoose(direction string) error {
 	return nil
 }
 
-func migrate(direction string) {
+func Migrate(direction string) {
 	if direction != "up" && direction != "down" {
 		fmt.Println("Invalid migration direction. Use 'up' or 'down'.")
 		os.Exit(1)

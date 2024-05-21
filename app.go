@@ -6,6 +6,7 @@ import (
 
 	"grails/database"
 	"grails/handlers"
+	"grails/internals"
 
 	"flag"
 	"fmt"
@@ -91,16 +92,16 @@ func main() {
 		fmt.Println("ENV Loaded.")
 	}
 
-	// if len(os.Args) > 1 {
-	// 	// Check for migration command
-	// 	if os.Args[1] == "migrate" && len(os.Args) == 3 {
-	// 		migrate(os.Args[2]) // Run the migrate function with the direction
-	// 		return
-	// 	} else {
-	// 		log.Println("Usage: app migrate <up|down>")
-	// 		os.Exit(1)
-	// 	}
-	// }
+	if len(os.Args) > 1 {
+		// Check for migration command
+		if os.Args[1] == "migrate" && len(os.Args) == 3 {
+			internals.Migrate(os.Args[2]) // Run the migrate function with the direction
+			return
+		} else {
+			log.Println("Usage: app migrate <up|down>")
+			os.Exit(1)
+		}
+	}
     // Database connection string
     dsn := os.Getenv("DB_USER") + ":" + os.Getenv("DB_PASSWORD") + "@tcp(" + os.Getenv("DB_HOST") + ":" + os.Getenv("DB_PORT") + ")/"
     dbNot, err := sql.Open("mysql", dsn)
