@@ -1,23 +1,8 @@
-# Grails - A GoFiber web framework for Rails lovers!
+# Grails - A GoFiber web framework for Rails lovers 💚!
 
-![Release](https://img.shields.io/github/release/gofiber/boilerplate.svg)
 [![Discord](https://img.shields.io/badge/discord-join%20channel-7289DA)](https://gofiber.io/discord)
 ![Test](https://github.com/gofiber/boilerplate/workflows/Test/badge.svg)
-![Security](https://github.com/gofiber/boilerplate/workflows/Security/badge.svg)
-![Linter](https://github.com/gofiber/boilerplate/workflows/Linter/badge.svg)
 
-
-## IDE Development
-
-### Visual Studio Code
-
-Use the following plugins, in this boilerplate project:
-- Name: Go
-  - ID: golang.go
-  - Description: Rich Go language support for Visual Studio Code
-  - Version: 0.29.0
-  - Editor: Go Team at Google
-  - Link to Marketplace to VS: https://marketplace.visualstudio.com/items?itemName=golang.Go
 
 ## Development
 
