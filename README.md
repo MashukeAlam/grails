@@ -1,4 +1,4 @@
-# GoFiber Docker Boilerplate
+# Grails - A GoFiber web framework for Rails lovers!
 
 ![Release](https://img.shields.io/github/release/gofiber/boilerplate.svg)
 [![Discord](https://img.shields.io/badge/discord-join%20channel-7289DA)](https://gofiber.io/discord)
@@ -28,48 +28,36 @@ Use the following plugins, in this boilerplate project:
 go run app.go
 ```
 
-### Use local container
-
-```
-# Shows all commands
-make help
-
-# Clean packages
-make clean-packages
-
-# Generate go.mod & go.sum files
-make requirements
-
-# Generate docker image
-make build
-
-# Generate docker image with no cache
-make build-no-cache
-
-# Run the projec in a local container
-make up
-
-# Run local container in background
-make up-silent
-
-# Run local container in background with prefork
-make up-silent-prefork
-
-# Stop container
-make stop
-
-# Start container
-make start
-```
-
-## Production
+### Create migrations
+Write less code and call generateMigrations. This will come to CLI soon.
 
 ```bash
-docker build -t gofiber .
-docker run -d -p 3000:3000 gofiber ./app -prod
+tableName1 := "users"
+fields1 := []Field{
+	{Name: "name", Type: "VARCHAR(100) NOT NULL"},
+	{Name: "email", Type: "VARCHAR(100) NOT NULL UNIQUE"},
+}
+
+// Generate the migration files
+generateMigration(tableName1, fields1)
+
+tableName2 := "tweets"
+fields2 := []Field{
+ 	{Name: "body", Type: "VARCHAR(300) NOT NULL"},
+ 	{Name: "title", Type: "VARCHAR(100) NOT NULL"},
+}
+
+// Generate the migration files
+generateMigration(tableName2, fields2)
 ```
 
-Go to http://localhost:3000:
+
+### Run migrations
 
 
-![Go Fiber Docker Boilerplate](./go_fiber_boilerplate.gif)
+```bash
+go run app.go migrate up
+```
+
+
+Go to http://localhost:5000:
