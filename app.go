@@ -117,17 +117,17 @@ func generateCreateMigration(tableName string, fields []Field, reference ...stri
 	// Generate the Go model
 	modelName := toCamelCase(tableName)
 	modelContent := fmt.Sprintf("package models\n\nimport \"gorm.io/gorm\"\n\n// %s model\ntype %s struct {\n", modelName, modelName)
-	modelContent += "gorm.Model\n"
+	modelContent += "	gorm.Model\n"
 	for _, field := range fields {
 		fieldName := toCamelCase(field.Name)
 		goType := toGoType(field.Type)
-		modelContent += fmt.Sprintf("%s %s\n", fieldName, goType)
+		modelContent += fmt.Sprintf("	%s %s\n", fieldName, goType)
 	}
 	if len(reference) > 0 {
 		referenceTable := reference[0]
 		referenceField := toCamelCase(referenceTable)
-		modelContent += fmt.Sprintf("%sID int\n", referenceField)
-		modelContent += fmt.Sprintf("%s %s `gorm:\"foreignKey:%sID;references:ID\"`\n", referenceField, referenceField, referenceField)
+		modelContent += fmt.Sprintf("	%sID int\n", referenceField)
+		modelContent += fmt.Sprintf("	%s %s `gorm:\"foreignKey:%sID;references:ID\"`\n", referenceField, referenceField, referenceField)
 	}
 	modelContent += "}\n"
 
@@ -201,7 +201,6 @@ func main() {
 		DB = dbGorm
 	}
 
-
 	// Create a new engine
 	engine := slim.New("./views", ".slim")
 
@@ -229,10 +228,12 @@ func main() {
 		})
 	})
 
-	// Create a /api/v1 endpoint
-	v1 := app.Group("/api/v1")
+	// add models to watch for migration.
 	dbGorm.AutoMigrate(&models.Game{})
 	dbGorm.AutoMigrate(&models.Player{})
+
+	// Create a /api/v1 endpoint
+	v1 := app.Group("/api/v1")
 	// Create a /game endpoint
 	game := app.Group("/game")
 	game.Get("/", handlers.GetGames(dbGorm))
