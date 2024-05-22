@@ -88,7 +88,7 @@ func generateCreateMigration(tableName string, fields []Field, reference ...stri
 
 	// Generate the SQL for the migration
 	migrationSQL := "-- +goose Up\n\n"
-	migrationSQL += fmt.Sprintf("CREATE TABLE %s (\n", tableName)
+	migrationSQL += fmt.Sprintf("CREATE TABLE %ss (\n", tableName)
 	migrationSQL += "  id INT AUTO_INCREMENT PRIMARY KEY,\n"
 	for _, field := range fields {
 		migrationSQL += fmt.Sprintf("  %s %s,\n", field.Name, field.Type)
@@ -102,7 +102,7 @@ func generateCreateMigration(tableName string, fields []Field, reference ...stri
 	migrationSQL += ");\n\n"
 
 	migrationSQL += "-- +goose Down\n\n"
-	migrationSQL += fmt.Sprintf("DROP TABLE %s;", tableName)
+	migrationSQL += fmt.Sprintf("DROP TABLE %ss;", tableName)
 
 	// Write the migration file
 	time.Sleep(time.Millisecond * 1000)
@@ -138,6 +138,8 @@ func generateCreateMigration(tableName string, fields []Field, reference ...stri
 		log.Fatalf("Failed to write model file: %v", err)
 	}
 	fmt.Printf("Model file %s created successfully.\n", modelFileName)
+
+	// TODO: autoMigrate here gorm model.
 }
 
 func main() {
