@@ -8,19 +8,25 @@ import (
 	"grails/handlers"
 	"grails/internals"
 
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
+
 	"flag"
 	"fmt"
 	"log"
 	"os"
+	"strings"
+	// "golang.org/x/text/cases"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/template/slim/v2"
-
 	"github.com/joho/godotenv"
 )
+
+var DB *gorm.DB
 
 var (
 	port = flag.String("port", ":5000", "Port to listen on")
@@ -38,9 +44,39 @@ type Field struct {
 	Type string
 }
 
+func capitalizeFirstLetter(str string) string {
+	if len(str) == 0 {
+		return str
+	}
+	return strings.ToUpper(string(str[0])) + str[1:]
+}
+
+// Converts a snake_case string to CamelCase.
+func toCamelCase(str string) string {
+	parts := strings.Split(str, "_")
+	for i := range parts {
+		parts[i] = capitalizeFirstLetter(parts[i])
+	}
+	return strings.Join(parts, "")
+}
+
+func toGoType(sqlType string) string {
+	switch strings.ToUpper(sqlType) {
+	case "VARCHAR(255)", "TEXT":
+		return "string"
+	case "INT":
+		return "int"
+	case "TIMESTAMP":
+		return "time.Time"
+	default:
+		return "string"
+	}
+}
+
 func generateCreateMigration(tableName string, fields []Field, reference ...string) {
 	// Define the migration directory
 	migrationDir := "migrations"
+	modelDir := "models"
 
 	// Ensure the migration directory exists
 	err := os.MkdirAll(migrationDir, os.ModePerm)
@@ -75,6 +111,31 @@ func generateCreateMigration(tableName string, fields []Field, reference ...stri
 	}
 
 	fmt.Printf("Migration file %s created successfully.\n", migrationFileName)
+
+	// Generate the Go model
+	modelName := toCamelCase(tableName)
+	modelContent := fmt.Sprintf("package models\n\nimport \"gorm.io/gorm\"\n\n// %s model\ntype %s struct {\n", modelName, modelName)
+	modelContent += "gorm.Model\n"
+	for _, field := range fields {
+		fieldName := toCamelCase(field.Name)
+		goType := toGoType(field.Type)
+		modelContent += fmt.Sprintf("%s %s\n", fieldName, goType)
+	}
+	if len(reference) > 0 {
+		referenceTable := reference[0]
+		referenceField := toCamelCase(referenceTable)
+		modelContent += fmt.Sprintf("%sID int\n", referenceField)
+		modelContent += fmt.Sprintf("%s %s `gorm:\"foreignKey:%sID;references:ID\"`\n", referenceField, referenceField, referenceField)
+	}
+	modelContent += "}\n"
+
+	// Write the model file.
+	modelFileName := fmt.Sprintf("%s/%s.go", modelDir, tableName)
+	err = os.WriteFile(modelFileName, []byte(modelContent), 0644)
+	if err != nil {
+		log.Fatalf("Failed to write model file: %v", err)
+	}
+	fmt.Printf("Model file %s created successfully.\n", modelFileName)
 }
 
 func main() {
@@ -128,6 +189,15 @@ func main() {
 	}
     defer db.Close()
 
+	dbGorm, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	if err != nil {
+		log.Fatal("Failed to connect to database:", err)
+	} else {
+		fmt.Println("ORM Ready.")
+		DB = dbGorm
+	}
+
+
 	// Create a new engine
 	engine := slim.New("./views", ".slim")
 
@@ -169,7 +239,7 @@ func main() {
 	// Handle not founds
 	app.Use(handlers.NotFound)
 
-	tableName1 := "state"
+	tableName1 := "game"
 	fields1 := []Field{
 		{Name: "name", Type: "VARCHAR(100) NOT NULL"},
 	}
@@ -177,14 +247,14 @@ func main() {
 	// Generate the migration files
 	generateCreateMigration(tableName1, fields1)
 
-	tableName2 := "locations"
+	tableName2 := "player"
 	fields2 := []Field{
 		{Name: "name", Type: "VARCHAR(300) NOT NULL"},
 	}
 
 	// Generate the migration files
-	generateCreateMigration(tableName2, fields2, "state")
+	generateCreateMigration(tableName2, fields2, "game")
 
-	//Listen on port 5000
+	// Listen on port 5000
 	log.Fatal(app.Listen(*port)) 
 }
