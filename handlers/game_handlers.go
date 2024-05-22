@@ -15,6 +15,10 @@ func GetGames(db *gorm.DB) fiber.Handler {
                 "error": result.Error.Error(),
             })
         }
-        return c.JSON(games)
+        // Render the Slim template with the games data
+        return c.Render("games/index", fiber.Map{
+            "games": games,
+            "title": "All Games",
+        })
     }
 }

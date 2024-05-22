@@ -245,6 +245,7 @@ func main() {
 	// Setup static files
 	app.Static("/js", "./static/public/js")
 	app.Static("/img", "./static/public/img")
+	app.Static("/css", "./static/public/css")
 
 	// Handle not founds
 	app.Use(handlers.NotFound)
