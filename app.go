@@ -7,6 +7,7 @@ import (
 	"grails/database"
 	"grails/handlers"
 	"grails/internals"
+	"grails/models"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -16,6 +17,7 @@ import (
 	"log"
 	"os"
 	"strings"
+
 	// "golang.org/x/text/cases"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -189,7 +191,7 @@ func main() {
 	}
     defer db.Close()
 
-	dbGorm, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	dbGorm, err := gorm.Open(mysql.Open(dsnWithDB), &gorm.Config{})
 	if err != nil {
 		log.Fatal("Failed to connect to database:", err)
 	} else {
@@ -227,6 +229,11 @@ func main() {
 
 	// Create a /api/v1 endpoint
 	v1 := app.Group("/api/v1")
+	dbGorm.AutoMigrate(&models.Game{})
+	dbGorm.AutoMigrate(&models.Player{})
+	// Create a /game endpoint
+	game := app.Group("/game")
+	game.Get("/", handlers.GetGames(dbGorm))
 
 	// Bind handlers
 	v1.Get("/users", handlers.UserList)
@@ -239,21 +246,21 @@ func main() {
 	// Handle not founds
 	app.Use(handlers.NotFound)
 
-	tableName1 := "game"
-	fields1 := []Field{
-		{Name: "name", Type: "VARCHAR(100) NOT NULL"},
-	}
+	// tableName1 := "game"
+	// fields1 := []Field{
+	// 	{Name: "name", Type: "VARCHAR(100) NOT NULL"},
+	// }
 
-	// Generate the migration files
-	generateCreateMigration(tableName1, fields1)
+	// // Generate the migration files
+	// generateCreateMigration(tableName1, fields1)
 
-	tableName2 := "player"
-	fields2 := []Field{
-		{Name: "name", Type: "VARCHAR(300) NOT NULL"},
-	}
+	// tableName2 := "player"
+	// fields2 := []Field{
+	// 	{Name: "name", Type: "VARCHAR(300) NOT NULL"},
+	// }
 
-	// Generate the migration files
-	generateCreateMigration(tableName2, fields2, "game")
+	// // Generate the migration files
+	// generateCreateMigration(tableName2, fields2, "game")
 
 	// Listen on port 5000
 	log.Fatal(app.Listen(*port)) 
