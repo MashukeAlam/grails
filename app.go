@@ -38,7 +38,7 @@ type Field struct {
 	Type string
 }
 
-func generateMigration(tableName string, fields []Field) {
+func generateCreateMigration(tableName string, fields []Field, reference ...string) {
 	// Define the migration directory
 	migrationDir := "migrations"
 
@@ -48,39 +48,34 @@ func generateMigration(tableName string, fields []Field) {
 		log.Fatalf("Failed to create migrations directory: %v", err)
 	}
 
-	// Generate the SQL for the UP migration
-	upSQL := "-- +goose Up\n\n"
-	upSQL += fmt.Sprintf("CREATE TABLE %s (\n", tableName)
-	upSQL += "  id INT AUTO_INCREMENT PRIMARY KEY,\n"
+	// Generate the SQL for the migration
+	migrationSQL := "-- +goose Up\n\n"
+	migrationSQL += fmt.Sprintf("CREATE TABLE %s (\n", tableName)
+	migrationSQL += "  id INT AUTO_INCREMENT PRIMARY KEY,\n"
 	for _, field := range fields {
-		upSQL += fmt.Sprintf("  %s %s,\n", field.Name, field.Type)
+		migrationSQL += fmt.Sprintf("  %s %s,\n", field.Name, field.Type)
 	}
-	upSQL += "  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n"
-	upSQL += ");"
-	
-	// Generate the SQL for the DOWN migration
-	// downSQL := "-- +goose Down\n\n"
-	// downSQL += fmt.Sprintf("DROP TABLE %s;", tableName)
-	
-	// Write the UP migration file
+	if len(reference) > 0 {
+		referenceTable := reference[0]
+		migrationSQL += fmt.Sprintf("  %s INT NOT NULL,\n", referenceTable)
+		migrationSQL += fmt.Sprintf("  FOREIGN KEY (%s) REFERENCES %s(id),\n", referenceTable, referenceTable)
+	}
+	migrationSQL += "  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n"
+	migrationSQL += ");\n\n"
+
+	migrationSQL += "-- +goose Down\n\n"
+	migrationSQL += fmt.Sprintf("DROP TABLE %s;", tableName)
+
+	// Write the migration file
 	time.Sleep(time.Millisecond * 1000)
-	upFileName := fmt.Sprintf("%s/%s_create_%s_table.up.sql", migrationDir, time.Now().Format("20060102150405"), tableName)
-	err = os.WriteFile(upFileName, []byte(upSQL), 0644)
+	migrationFileName := fmt.Sprintf("%s/%s_create_%s_table.sql", migrationDir, time.Now().Format("20060102150405"), tableName)
+	err = os.WriteFile(migrationFileName, []byte(migrationSQL), 0644)
 	if err != nil {
-		log.Fatalf("Failed to write UP migration file: %v", err)
+		log.Fatalf("Failed to write migration file: %v", err)
 	}
-	
-	// Write the DOWN migration file
-	// time.Sleep(time.Millisecond * 1000)
-	// downFileName := fmt.Sprintf("%s/%s_create_%s_table.down.sql", migrationDir, time.Now().Format("20060102150405"), tableName)
-	// err = os.WriteFile(downFileName, []byte(downSQL), 0644)
-	// if err != nil {
-	// 	log.Fatalf("Failed to write DOWN migration file: %v", err)
-	// }
 
-	fmt.Printf("Migration files %s created successfully.\n", upFileName)
+	fmt.Printf("Migration file %s created successfully.\n", migrationFileName)
 }
-
 
 func main() {
 	
@@ -174,23 +169,21 @@ func main() {
 	// Handle not founds
 	app.Use(handlers.NotFound)
 
-	// tableName1 := "users"
-	// fields1 := []Field{
-	// 	{Name: "name", Type: "VARCHAR(100) NOT NULL"},
-	// 	{Name: "email", Type: "VARCHAR(100) NOT NULL UNIQUE"},
-	// }
+	tableName1 := "state"
+	fields1 := []Field{
+		{Name: "name", Type: "VARCHAR(100) NOT NULL"},
+	}
 
-	// // Generate the migration files
-	// generateMigration(tableName1, fields1)
+	// Generate the migration files
+	generateCreateMigration(tableName1, fields1)
 
-	// tableName2 := "tweets"
-	// fields2 := []Field{
-	// 	{Name: "body", Type: "VARCHAR(300) NOT NULL"},
-	// 	{Name: "title", Type: "VARCHAR(100) NOT NULL"},
-	// }
+	tableName2 := "locations"
+	fields2 := []Field{
+		{Name: "name", Type: "VARCHAR(300) NOT NULL"},
+	}
 
-	// // Generate the migration files
-	// generateMigration(tableName2, fields2)
+	// Generate the migration files
+	generateCreateMigration(tableName2, fields2, "state")
 
 	//Listen on port 5000
 	log.Fatal(app.Listen(*port)) 
