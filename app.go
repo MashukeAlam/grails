@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"github.com/gofiber/template/html/v2"
+	"regexp"
 	"text/template"
 	"time"
 
@@ -70,16 +71,31 @@ func toCamelCase(str string) string {
 	return strings.Join(parts, "")
 }
 
+// toGoType maps SQL types to Go types
 func toGoType(sqlType string) string {
-	switch strings.ToUpper(sqlType) {
-	case "VARCHAR(255)", "TEXT":
+	// Regular expression to match SQL types with optional length or precision
+	re := regexp.MustCompile(`([a-zA-Z]+)(\(\d+\))?`)
+
+	// Extract base type and optional length/precision
+	matches := re.FindStringSubmatch(strings.ToUpper(sqlType))
+	if len(matches) < 2 {
 		return "string"
-	case "INT":
+	}
+	baseType := matches[1]
+
+	switch baseType {
+	case "VARCHAR", "CHAR", "NVARCHAR", "NCHAR", "CLOB", "TEXT":
+		return "string"
+	case "INT", "INTEGER", "TINYINT", "SMALLINT", "MEDIUMINT", "BIGINT":
 		return "int"
-	case "TIMESTAMP":
+	case "FLOAT", "DOUBLE", "REAL", "DECIMAL", "NUMERIC":
+		return "float64"
+	case "DATE", "DATETIME", "TIMESTAMP", "TIME", "YEAR":
 		return "time.Time"
-	case "TINYINT(1)":
-		return "int"
+	case "BINARY", "VARBINARY", "BLOB", "LONGBLOB", "MEDIUMBLOB", "TINYBLOB":
+		return "[]byte"
+	case "BOOL", "BOOLEAN":
+		return "bool"
 	default:
 		return "string"
 	}
@@ -417,6 +433,7 @@ func main() {
 	dbGorm.AutoMigrate(&models.Country{})
 	dbGorm.AutoMigrate(&models.Food{})
 	dbGorm.AutoMigrate(&models.Car{})
+	dbGorm.AutoMigrate(&models.Bike{})
 
 	// Create a /game endpoint
 	game := app.Group("/game")
@@ -428,6 +445,7 @@ func main() {
 	game.Post("/:id", handlers.UpdateGame(dbGorm))
 	game.Delete("/:id", handlers.DestroyGame(dbGorm))
 
+	// Car routes
 	Car := app.Group("/Car")
 	Car.Get("/", handlers.GetCars(dbGorm))
 	Car.Get("/insert", handlers.InsertCar())
@@ -437,6 +455,16 @@ func main() {
 	Car.Get("/:id/delete", handlers.DeleteCar(dbGorm))
 	Car.Delete("/:id", handlers.DeleteCar(dbGorm))
 
+	// Bike routes
+	Bike := app.Group("/Bike")
+	Bike.Get("/", handlers.GetBikes(dbGorm))
+	Bike.Get("/insert", handlers.InsertBike())
+	Bike.Post("/", handlers.CreateBike(dbGorm))
+	Bike.Get("/:id/edit", handlers.EditBike(dbGorm))
+	Bike.Put("/:id", handlers.UpdateBike(dbGorm))
+	Bike.Get("/:id/delete", handlers.DeleteBike(dbGorm))
+	Bike.Delete("/:id", handlers.DestroyBike(dbGorm))
+
 	// Setup static files
 	app.Static("/js", "./static/public/js")
 	app.Static("/img", "./static/public/img")
@@ -445,7 +473,7 @@ func main() {
 	// Handle not founds
 	app.Use(handlers.NotFound)
 	//
-	//tableName1 := "Car"
+	//tableName1 := "bike"
 	//fields1 := []Field{
 	//	{Name: "name", Type: "VARCHAR(100) NOT NULL"},
 	//	{Name: "type", Type: "VARCHAR(10) NOT NULL"},
