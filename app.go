@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"github.com/gofiber/template/html/v2"
 	"time"
 
 	"grails/database"
@@ -24,7 +25,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
-	"github.com/gofiber/template/slim/v2"
 	"github.com/joho/godotenv"
 )
 
@@ -36,9 +36,9 @@ var (
 )
 
 func createDatabase(db *sql.DB, dbName string) error {
-    // Create the database if it doesn't exist
-    _, err := db.Exec(fmt.Sprintf("CREATE DATABASE IF NOT EXISTS %s", dbName))
-    return err
+	// Create the database if it doesn't exist
+	_, err := db.Exec(fmt.Sprintf("CREATE DATABASE IF NOT EXISTS %s", dbName))
+	return err
 }
 
 type Field struct {
@@ -143,11 +143,11 @@ func generateCreateMigration(tableName string, fields []Field, reference ...stri
 }
 
 func main() {
-	
+
 	err := godotenv.Load()
-    if err != nil {
-        log.Fatal("Error loading .env file")
-    } else {
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	} else {
 		fmt.Println("ENV Loaded.")
 	}
 
@@ -161,37 +161,37 @@ func main() {
 			os.Exit(1)
 		}
 	}
-    // Database connection string
-    dsn := os.Getenv("DB_USER") + ":" + os.Getenv("DB_PASSWORD") + "@tcp(" + os.Getenv("DB_HOST") + ":" + os.Getenv("DB_PORT") + ")/"
-    dbNot, err := sql.Open("mysql", dsn)
-    if err != nil {
-        log.Fatal(err)
-    } else {
+	// Database connection string
+	dsn := os.Getenv("DB_USER") + ":" + os.Getenv("DB_PASSWORD") + "@tcp(" + os.Getenv("DB_HOST") + ":" + os.Getenv("DB_PORT") + ")/"
+	dbNot, err := sql.Open("mysql", dsn)
+	if err != nil {
+		log.Fatal(err)
+	} else {
 		fmt.Println("Database server connected.")
 	}
-    defer dbNot.Close()
+	defer dbNot.Close()
 
-    // Verify the connection
-    if err := dbNot.Ping(); err != nil {
-        log.Fatal(err)
-    }
+	// Verify the connection
+	if err := dbNot.Ping(); err != nil {
+		log.Fatal(err)
+	}
 
 	// Create the
 	err = createDatabase(dbNot, os.Getenv("DB_NAME"))
-    if err != nil {
-        log.Fatalf("Failed to create database: %v", err)
-    } else {
+	if err != nil {
+		log.Fatalf("Failed to create database: %v", err)
+	} else {
 		fmt.Println("Database connected.")
 	}
 
 	dsnWithDB := os.Getenv("DB_USER") + ":" + os.Getenv("DB_PASSWORD") + "@tcp(" + os.Getenv("DB_HOST") + ":" + os.Getenv("DB_PORT") + ")/" + os.Getenv("DB_NAME")
-    db, err := sql.Open("mysql", dsnWithDB)
-    if err != nil {
-        log.Fatal(err)
-    } else {
+	db, err := sql.Open("mysql", dsnWithDB)
+	if err != nil {
+		log.Fatal(err)
+	} else {
 		fmt.Println("Database ready.")
 	}
-    defer db.Close()
+	defer db.Close()
 
 	dbGorm, err := gorm.Open(mysql.Open(dsnWithDB), &gorm.Config{})
 	if err != nil {
@@ -202,7 +202,7 @@ func main() {
 	}
 
 	// Create a new engine
-	engine := slim.New("./views", ".slim")
+	engine := html.New("views", ".html")
 
 	// Parse command-line flags
 	flag.Parse()
@@ -213,7 +213,7 @@ func main() {
 	// Create fiber app
 	app := fiber.New(fiber.Config{
 		Prefork: *prod, // go run app.go -prod
-		Views: engine,
+		Views:   engine,
 	})
 
 	// Middleware
@@ -225,7 +225,7 @@ func main() {
 		// Pass the title to the template
 		return c.Render("index", fiber.Map{
 			"Title": "Hello, Fiber with Slim!",
-		})
+		}, "layouts/main")
 	})
 
 	// add models to watch for migration.
@@ -267,5 +267,5 @@ func main() {
 	// generateCreateMigration(tableName2, fields2, "game")
 
 	// Listen on port 5000
-	log.Fatal(app.Listen(*port)) 
+	log.Fatal(app.Listen(*port))
 }

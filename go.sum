@@ -23,6 +23,10 @@ github.com/gofiber/fiber/v2 v2.52.1 h1:1RoU2NS+b98o1L77sdl5mboGPiW+0Ypsi5oLmcYlg
 github.com/gofiber/fiber/v2 v2.52.1/go.mod h1:KEOE+cXMhXG0zHc9d8+E38hoX+ZN7bhOtgeF2oT6jrQ=
 github.com/gofiber/template v1.8.3 h1:hzHdvMwMo/T2kouz2pPCA0zGiLCeMnoGsQZBTSYgZxc=
 github.com/gofiber/template v1.8.3/go.mod h1:bs/2n0pSNPOkRa5VJ8zTIvedcI/lEYxzV3+YPXdBvq8=
+github.com/gofiber/template/ace/v2 v2.1.6 h1:GcqPKSq8gSDWjz2cjk8FgP6g4OynTbZK6qtKIQZEbWM=
+github.com/gofiber/template/ace/v2 v2.1.6/go.mod h1:h+7clLOwYZNbbrH4i/pfdI2LtGv5tZj9hsYvNd/xYbw=
+github.com/gofiber/template/html/v2 v2.1.1 h1:QEy3O3EBkvwDthy5bXVGUseOyO6ldJoiDxlF4+MJiV8=
+github.com/gofiber/template/html/v2 v2.1.1/go.mod h1:2G0GHHOUx70C1LDncoBpe4T6maQbNa4x1CVNFW0wju0=
 github.com/gofiber/template/slim/v2 v2.1.6 h1:8AaHGxXTjWIApiwsOYAe+qWevTnID23OcWfY1Kpe6PA=
 github.com/gofiber/template/slim/v2 v2.1.6/go.mod h1:0lKKbJQju0hAQKX4OdKiKN1LJzO6J+ZilmVTXKYNvxU=
 github.com/gofiber/utils v1.1.0 h1:vdEBpn7AzIUJRhe+CiTOJdUcTg4Q9RK+pEa0KPbLdrM=
@@ -77,6 +81,8 @@ github.com/valyala/fasthttp v1.51.0 h1:8b30A5JlZ6C7AS81RsWjYMQmrZG6feChmgAolCl1S
 github.com/valyala/fasthttp v1.51.0/go.mod h1:oI2XroL+lI7vdXyYoQk03bXBThfFl2cVdIA3Xl7cH8g=
 github.com/valyala/tcplisten v1.0.0 h1:rBHj/Xf+E1tRGZyWIWwJDiRY0zc1Js+CV5DqwacVSA8=
 github.com/valyala/tcplisten v1.0.0/go.mod h1:T0xQ8SeCZGxckz9qRXTfG43PvQ/mcWh7FwZEA7Ioqkc=
+github.com/yosssi/ace v0.0.5 h1:tUkIP/BLdKqrlrPwcmH0shwEEhTRHoGnc1wFIWmaBUA=
+github.com/yosssi/ace v0.0.5/go.mod h1:ALfIzm2vT7t5ZE7uoIZqF3TQ7SAOyupFZnkrF5id+K0=
 github.com/ziutek/mymysql v1.5.4 h1:GB0qdRGsTwQSBVYuVShFBKaXSnSnYYC2d9knnE1LHFs=
 github.com/ziutek/mymysql v1.5.4/go.mod h1:LMSpPZ6DbqWFxNCHW77HeMg9I646SAhApZ/wKdgO/C0=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=

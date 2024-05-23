@@ -11,7 +11,7 @@ import (
 func HomePage(c *fiber.Ctx) error {
 	return c.Render("index", fiber.Map{
 		"Title": "Hello, Fiber with Slim!",
-	})
+	}, "layouts/main")
 }
 
 // UserList returns a list of users
