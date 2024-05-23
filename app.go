@@ -31,6 +31,13 @@ import (
 
 var DB *gorm.DB
 
+// ANSI escape codes for colors
+const (
+	Red   = "\033[31m"
+	Green = "\033[32m"
+	Reset = "\033[0m"
+)
+
 var (
 	port = flag.String("port", ":5000", "Port to listen on")
 	prod = flag.Bool("prod", false, "Enable prefork in Production")
@@ -71,6 +78,8 @@ func toGoType(sqlType string) string {
 		return "int"
 	case "TIMESTAMP":
 		return "time.Time"
+	case "TINYINT(1)":
+		return "int"
 	default:
 		return "string"
 	}
@@ -81,10 +90,9 @@ func generateHandlerFile(modelName string) {
 	const handlerTemplate = `package handlers
 
 import (
-	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
-	"your_project_path/models" // Adjust the import path accordingly
+	"grails/models" // Adjust the import path accordingly
 )
 
 // Get{{.ModelName}}s retrieves all {{.ModelName}}s from the database
@@ -229,6 +237,21 @@ func Destroy{{.ModelName}}(db *gorm.DB) fiber.Handler {
 	}
 
 	fmt.Printf("Handler file %s created successfully.\n", handlerFileName)
+	// Generate the route registration code for the model
+	routeRegistration := fmt.Sprintf(`
+// %s routes
+%s := app.Group("/%s")
+%s.Get("/", handlers.Get%s(db))
+%s.Get("/insert", handlers.Insert%s())
+%s.Post("/", handlers.Create%s(db))
+%s.Get("/:id/edit", handlers.Edit%s(db))
+%s.Put("/:id", handlers.Update%s(db))
+%s.Get("/:id/delete", handlers.Delete%s(db))
+%s.Delete("/:id", handlers.Destroy%s(db))
+`, strings.Title(modelName), modelName, modelName, modelName, strings.Title(modelName), modelName, strings.Title(modelName), modelName, strings.Title(modelName), modelName, strings.Title(modelName), modelName, strings.Title(modelName), modelName, strings.Title(modelName), modelName, modelName)
+
+	// Print the route registration code in yellow color
+	fmt.Println("\033[33m" + routeRegistration + "\033[0m")
 }
 
 func generateCreateMigration(tableName string, fields []Field, reference ...string) {
@@ -296,8 +319,9 @@ func generateCreateMigration(tableName string, fields []Field, reference ...stri
 	fmt.Printf("Model file %s created successfully.\n", modelFileName)
 
 	// TODO: autoMigrate here gorm model.
-	fmt.Printf("dbGorm.AutoMigrate(&models.%s{})", modelName)
+	fmt.Printf("%s\n\n\ndbGorm.AutoMigrate(&models.%s{})%s\n\n\n", modelName, Green, Reset)
 	generateHandlerFile(modelName)
+	os.Exit(1)
 }
 
 func main() {
@@ -319,6 +343,7 @@ func main() {
 			os.Exit(1)
 		}
 	}
+
 	// Database connection string
 	dsn := os.Getenv("DB_USER") + ":" + os.Getenv("DB_PASSWORD") + "@tcp(" + os.Getenv("DB_HOST") + ":" + os.Getenv("DB_PORT") + ")/"
 	dbNot, err := sql.Open("mysql", dsn)
@@ -390,6 +415,8 @@ func main() {
 	dbGorm.AutoMigrate(&models.Game{})
 	dbGorm.AutoMigrate(&models.Player{})
 	dbGorm.AutoMigrate(&models.Country{})
+	dbGorm.AutoMigrate(&models.Food{})
+	dbGorm.AutoMigrate(&models.Car{})
 
 	// Create a /game endpoint
 	game := app.Group("/game")
@@ -401,6 +428,15 @@ func main() {
 	game.Post("/:id", handlers.UpdateGame(dbGorm))
 	game.Delete("/:id", handlers.DestroyGame(dbGorm))
 
+	Car := app.Group("/Car")
+	Car.Get("/", handlers.GetCars(dbGorm))
+	Car.Get("/insert", handlers.InsertCar())
+	Car.Post("/", handlers.CreateCar(dbGorm))
+	Car.Get("/:id/edit", handlers.EditCar(dbGorm))
+	Car.Post("/:id", handlers.UpdateCar(dbGorm))
+	Car.Get("/:id/delete", handlers.DeleteCar(dbGorm))
+	Car.Delete("/:id", handlers.DeleteCar(dbGorm))
+
 	// Setup static files
 	app.Static("/js", "./static/public/js")
 	app.Static("/img", "./static/public/img")
@@ -409,14 +445,14 @@ func main() {
 	// Handle not founds
 	app.Use(handlers.NotFound)
 	//
-	//tableName1 := "country"
+	//tableName1 := "Car"
 	//fields1 := []Field{
 	//	{Name: "name", Type: "VARCHAR(100) NOT NULL"},
-	//	{Name: "capital", Type: "VARCHAR(10) NOT NULL"},
-	//	{Name: "currency", Type: "VARCHAR(10) NOT NULL"},
+	//	{Name: "type", Type: "VARCHAR(10) NOT NULL"},
+	//	{Name: "isCheap", Type: "TINYINT(1) NOT NULL"},
 	//}
 	//
-	//// Generate the migration files
+	////Generate the migration files
 	//generateCreateMigration(tableName1, fields1)
 
 	// tableName2 := "player"
