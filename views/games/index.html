@@ -5,9 +5,8 @@
     <tr>
         <th>ID</th>
         <th>Name</th>
+        <th>Actions</th>
         <th>Created At</th>
-        <th>Updated At</th>
-        <th>Deleted At</th>
     </tr>
     </thead>
     <tbody>
@@ -15,9 +14,8 @@
     <tr>
         <td>{{.ID}}</td>
         <td>{{.Name}}</td>
+        <td><a href="/game/{{.ID}}/edit">Edit</a>|<a href="/game/{{.ID}}/delete">Del</a></td>
         <td>{{.CreatedAt}}</td>
-        <td>{{.UpdatedAt}}</td>
-        <td>{{.DeletedAt}}</td>
     </tr>
     {{end}}
     </tbody>

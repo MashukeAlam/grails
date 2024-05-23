@@ -1,0 +1,7 @@
+<form action="/game/{{.game.ID}}" method="POST">
+    <label for="name">Game Name:</label>
+    <input type="text" id="name" name="name" value="{{.Name}}" required>
+    <label for="year">Year Founded:</label>
+    <input type="text" id="year" name="year" value="{{.YearFounded}}" required>
+    <button type="submit">Update Game</button>
+</form>

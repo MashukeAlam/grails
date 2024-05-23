@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"github.com/gofiber/template/html/v2"
+	"text/template"
 	"time"
 
 	"grails/database"
@@ -75,6 +76,161 @@ func toGoType(sqlType string) string {
 	}
 }
 
+func generateHandlerFile(modelName string) {
+	// Define the template
+	const handlerTemplate = `package handlers
+
+import (
+	"fmt"
+	"github.com/gofiber/fiber/v2"
+	"gorm.io/gorm"
+	"your_project_path/models" // Adjust the import path accordingly
+)
+
+// Get{{.ModelName}}s retrieves all {{.ModelName}}s from the database
+func Get{{.ModelName}}s(db *gorm.DB) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		var {{.ModelNamePlural}} []models.{{.ModelName}}
+		if result := db.Find(&{{.ModelNamePlural}}); result.Error != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"error": result.Error.Error(),
+			})
+		}
+		return c.Render("{{.ModelNameLowercase}}s/index", fiber.Map{
+			"Title": "All {{.ModelName}}s",
+			"{{.ModelNamePlural}}": {{.ModelNamePlural}},
+		}, "layouts/main")
+	}
+}
+
+// Insert{{.ModelName}} renders the insert form
+func Insert{{.ModelName}}() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		return c.Render("{{.ModelNameLowercase}}s/insert", fiber.Map{
+			"Title": "Add New {{.ModelName}}",
+		}, "layouts/main")
+	}
+}
+
+// Create{{.ModelName}} handles the form submission for creating a new {{.ModelName}}
+func Create{{.ModelName}}(db *gorm.DB) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		{{.ModelNameLowercase}} := new(models.{{.ModelName}})
+		if err := c.BodyParser({{.ModelNameLowercase}}); err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error": "Cannot parse JSON",
+			})
+		}
+		if result := db.Create({{.ModelNameLowercase}}); result.Error != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"error": result.Error.Error(),
+			})
+		}
+		return c.Redirect("/{{.ModelNameLowercase}}s")
+	}
+}
+
+// Edit{{.ModelName}} renders the edit form for a specific {{.ModelName}}
+func Edit{{.ModelName}}(db *gorm.DB) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		var {{.ModelNameLowercase}} models.{{.ModelName}}
+		if err := db.First(&{{.ModelNameLowercase}}, c.Params("id")).Error; err != nil {
+			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+				"error": "{{.ModelName}} not found",
+			})
+		}
+		return c.Render("{{.ModelNameLowercase}}s/edit", fiber.Map{"{{.ModelNameLowercase}}": {{.ModelNameLowercase}}, "Title": "Edit Entry"}, "layouts/main")
+	}
+}
+
+// Update{{.ModelName}} handles the form submission for updating a {{.ModelName}}
+func Update{{.ModelName}}(db *gorm.DB) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		var {{.ModelNameLowercase}} models.{{.ModelName}}
+		if err := db.First(&{{.ModelNameLowercase}}, c.Params("id")).Error; err != nil {
+			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+				"error": "{{.ModelName}} not found",
+			})
+		}
+		if err := c.BodyParser(&{{.ModelNameLowercase}}); err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error": "Cannot parse JSON",
+			})
+		}
+		if err := db.Save(&{{.ModelNameLowercase}}).Error; err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"error": "Failed to update {{.ModelName}}",
+			})
+		}
+		return c.Redirect("/{{.ModelNameLowercase}}s")
+	}
+}
+
+// Delete{{.ModelName}} renders the delete confirmation view for a specific {{.ModelName}}
+func Delete{{.ModelName}}(db *gorm.DB) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		var {{.ModelNameLowercase}} models.{{.ModelName}}
+		if err := db.First(&{{.ModelNameLowercase}}, c.Params("id")).Error; err != nil {
+			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+				"error": "{{.ModelName}} not found",
+			})
+		}
+		return c.Render("{{.ModelNameLowercase}}s/delete", fiber.Map{"{{.ModelNameLowercase}}": {{.ModelNameLowercase}}, "Title": "Delete Entry"}, "layouts/main")
+	}
+}
+
+// Destroy{{.ModelName}} handles the deletion of a {{.ModelName}}
+func Destroy{{.ModelName}}(db *gorm.DB) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		var {{.ModelNameLowercase}} models.{{.ModelName}}
+		if err := db.First(&{{.ModelNameLowercase}}, c.Params("id")).Error; err != nil {
+			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+				"error": "{{.ModelName}} not found",
+			})
+		}
+		if err := db.Unscoped().Delete(&{{.ModelNameLowercase}}).Error; err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"error": "Failed to delete {{.ModelName}}",
+			})
+		}
+		return c.JSON(fiber.Map{"redirectUrl": "/{{.ModelNameLowercase}}s"})
+	}
+}
+`
+	// Prepare the data for the template
+	data := struct {
+		ModelName          string
+		ModelNamePlural    string
+		ModelNameLowercase string
+	}{
+		ModelName:          strings.Title(modelName),
+		ModelNamePlural:    strings.Title(modelName) + "s",
+		ModelNameLowercase: strings.ToLower(modelName),
+	}
+
+	// Parse and execute the template
+	tmpl, err := template.New("handler").Parse(handlerTemplate)
+	if err != nil {
+		panic(err)
+	}
+
+	// Create the handler file
+	handlerFileName := fmt.Sprintf("handlers/%s_handlers.go", modelName)
+	handlerFile, err := os.Create(handlerFileName)
+	if err != nil {
+		panic(err)
+	}
+	defer handlerFile.Close()
+
+	// Execute the template and write to the file
+	err = tmpl.Execute(handlerFile, data)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("Handler file %s created successfully.\n", handlerFileName)
+}
+
 func generateCreateMigration(tableName string, fields []Field, reference ...string) {
 	// Define the migration directory
 	migrationDir := "migrations"
@@ -140,6 +296,8 @@ func generateCreateMigration(tableName string, fields []Field, reference ...stri
 	fmt.Printf("Model file %s created successfully.\n", modelFileName)
 
 	// TODO: autoMigrate here gorm model.
+	fmt.Printf("dbGorm.AutoMigrate(&models.%s{})", modelName)
+	generateHandlerFile(modelName)
 }
 
 func main() {
@@ -232,17 +390,15 @@ func main() {
 	dbGorm.AutoMigrate(&models.Game{})
 	dbGorm.AutoMigrate(&models.Player{})
 
-	// Create a /api/v1 endpoint
-	v1 := app.Group("/api/v1")
 	// Create a /game endpoint
 	game := app.Group("/game")
 	game.Get("/", handlers.GetGames(dbGorm))
 	game.Get("/insert", handlers.InsertGame())
 	game.Post("/", handlers.CreateGame(dbGorm))
-
-	// Bind handlers
-	v1.Get("/users", handlers.UserList)
-	v1.Post("/users", handlers.UserCreate)
+	game.Get("/:id/edit", handlers.EditGame(dbGorm))
+	game.Get("/:id/delete", handlers.DeleteGame(dbGorm))
+	game.Post("/:id", handlers.UpdateGame(dbGorm))
+	game.Delete("/:id", handlers.DestroyGame(dbGorm))
 
 	// Setup static files
 	app.Static("/js", "./static/public/js")
@@ -252,13 +408,15 @@ func main() {
 	// Handle not founds
 	app.Use(handlers.NotFound)
 
-	// tableName1 := "game"
-	// fields1 := []Field{
-	// 	{Name: "name", Type: "VARCHAR(100) NOT NULL"},
-	// }
+	tableName1 := "country"
+	fields1 := []Field{
+		{Name: "name", Type: "VARCHAR(100) NOT NULL"},
+		{Name: "capital", Type: "VARCHAR(10) NOT NULL"},
+		{Name: "currency", Type: "VARCHAR(10) NOT NULL"},
+	}
 
-	// // Generate the migration files
-	// generateCreateMigration(tableName1, fields1)
+	// Generate the migration files
+	generateCreateMigration(tableName1, fields1)
 
 	// tableName2 := "player"
 	// fields2 := []Field{
