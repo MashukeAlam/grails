@@ -215,7 +215,7 @@ func Destroy{{.ModelName}}(db *gorm.DB) fiber.Handler {
 	}
 
 	// Create the handler file
-	handlerFileName := fmt.Sprintf("handlers/%s_handlers.go", modelName)
+	handlerFileName := fmt.Sprintf("handlers/%s_handlers.go", strings.ToLower(modelName))
 	handlerFile, err := os.Create(handlerFileName)
 	if err != nil {
 		panic(err)
@@ -389,6 +389,7 @@ func main() {
 	// add models to watch for migration.
 	dbGorm.AutoMigrate(&models.Game{})
 	dbGorm.AutoMigrate(&models.Player{})
+	dbGorm.AutoMigrate(&models.Country{})
 
 	// Create a /game endpoint
 	game := app.Group("/game")
@@ -407,16 +408,16 @@ func main() {
 
 	// Handle not founds
 	app.Use(handlers.NotFound)
-
-	tableName1 := "country"
-	fields1 := []Field{
-		{Name: "name", Type: "VARCHAR(100) NOT NULL"},
-		{Name: "capital", Type: "VARCHAR(10) NOT NULL"},
-		{Name: "currency", Type: "VARCHAR(10) NOT NULL"},
-	}
-
-	// Generate the migration files
-	generateCreateMigration(tableName1, fields1)
+	//
+	//tableName1 := "country"
+	//fields1 := []Field{
+	//	{Name: "name", Type: "VARCHAR(100) NOT NULL"},
+	//	{Name: "capital", Type: "VARCHAR(10) NOT NULL"},
+	//	{Name: "currency", Type: "VARCHAR(10) NOT NULL"},
+	//}
+	//
+	//// Generate the migration files
+	//generateCreateMigration(tableName1, fields1)
 
 	// tableName2 := "player"
 	// fields2 := []Field{
