@@ -34,7 +34,9 @@ fields2 := []Field{
 
 // Generate the migration files
 generateMigration(tableName2, fields2)
+
 ```
+WARNING: Remember to uncomment these lines after running once or they will keep adding .sql files.
 
 
 ### Run migrations
@@ -45,4 +47,9 @@ go run app.go migrate up
 ```
 
 
-Go to http://localhost:5000:
+Go to http://localhost:5000
+
+Attributions:
+This project is built on the boilerplate that Fiber provides and I respects all the people that implemented the initial foundation.
+
+[![Repo](https://github.com/gofiber/boilerplate/workflows/Test/badge.svg)](https://github.com/gofiber/boilerplate)
