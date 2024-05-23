@@ -184,7 +184,7 @@ func main() {
 		fmt.Println("Database connected.")
 	}
 
-	dsnWithDB := os.Getenv("DB_USER") + ":" + os.Getenv("DB_PASSWORD") + "@tcp(" + os.Getenv("DB_HOST") + ":" + os.Getenv("DB_PORT") + ")/" + os.Getenv("DB_NAME")
+	dsnWithDB := os.Getenv("DB_USER") + ":" + os.Getenv("DB_PASSWORD") + "@tcp(" + os.Getenv("DB_HOST") + ":" + os.Getenv("DB_PORT") + ")/" + os.Getenv("DB_NAME") + "?parseTime=true"
 	db, err := sql.Open("mysql", dsnWithDB)
 	if err != nil {
 		log.Fatal(err)
@@ -237,6 +237,8 @@ func main() {
 	// Create a /game endpoint
 	game := app.Group("/game")
 	game.Get("/", handlers.GetGames(dbGorm))
+	game.Get("/insert", handlers.InsertGame())
+	game.Post("/", handlers.CreateGame(dbGorm))
 
 	// Bind handlers
 	v1.Get("/users", handlers.UserList)
