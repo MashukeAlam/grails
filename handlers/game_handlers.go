@@ -16,8 +16,8 @@ func GetGames(db *gorm.DB) fiber.Handler {
 			})
 		}
 		return c.Render("games/index", fiber.Map{
-			"Title": "Hello, World!",
-			"games": games,
+			"Title": "All Games",
+			"Games": games,
 		}, "layouts/main")
 	}
 }
