@@ -1,8 +1,6 @@
 # Grails - A GoFiber web framework for Rails lovers 💚!
 
 [![Discord](https://img.shields.io/badge/discord-join%20channel-7289DA)](https://gofiber.io/discord)
-![Test](https://github.com/gofiber/boilerplate/workflows/Test/badge.svg)
-
 
 ## Development
 
@@ -52,4 +50,4 @@ Go to http://localhost:5000
 Attributions:
 This project is built on the boilerplate that Fiber provides and I respects all the people that implemented the initial foundation.
 
-[![Repo](https://github.com/gofiber/boilerplate/workflows/Test/badge.svg)](https://github.com/gofiber/boilerplate)
+[![Repo](https://img.shields.io/badge/repository-link-cyan)](https://github.com/gofiber/boilerplate)
