@@ -46,7 +46,11 @@ func ProcessIncomingScaffoldData(db *gorm.DB) fiber.Handler {
 		refTableName := data.ScaffoldData.RefTableName
 		fields := data.ScaffoldData.Fields
 
-		helpers.CreateModel(tableName, fields, refTableName)
+		if refTableName != "" {
+			helpers.CreateModel(tableName, fields, refTableName)
+		} else {
+			helpers.CreateModel(tableName, fields)
+		}
 		return c.JSON(fiber.Map{
 			"message": "Scaffold created successfully",
 		})

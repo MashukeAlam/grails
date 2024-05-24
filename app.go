@@ -3,21 +3,17 @@ package main
 import (
 	"database/sql"
 	"github.com/gofiber/template/html/v2"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 	"grails/database"
 	"grails/handlers"
 	"grails/internals"
 	"grails/models"
-	"regexp"
-
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
 
 	"flag"
 	"fmt"
 	"log"
 	"os"
-	"strings"
-
 	// "golang.org/x/text/cases"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -47,64 +43,13 @@ func createDatabase(db *sql.DB, dbName string) error {
 	return err
 }
 
-type Field struct {
-	Name string
-	Type string
-}
-
-func capitalizeFirstLetter(str string) string {
-	if len(str) == 0 {
-		return str
-	}
-	return strings.ToUpper(string(str[0])) + str[1:]
-}
-
-// Converts a snake_case string to CamelCase.
-func toCamelCase(str string) string {
-	parts := strings.Split(str, "_")
-	for i := range parts {
-		parts[i] = capitalizeFirstLetter(parts[i])
-	}
-	return strings.Join(parts, "")
-}
-
-// toGoType maps SQL types to Go types
-func toGoType(sqlType string) string {
-	// Regular expression to match SQL types with optional length or precision
-	re := regexp.MustCompile(`([a-zA-Z]+)(\(\d+\))?`)
-
-	// Extract base type and optional length/precision
-	matches := re.FindStringSubmatch(strings.ToUpper(sqlType))
-	if len(matches) < 2 {
-		return "string"
-	}
-	baseType := matches[1]
-
-	switch baseType {
-	case "VARCHAR", "CHAR", "NVARCHAR", "NCHAR", "CLOB", "TEXT":
-		return "string"
-	case "INT", "INTEGER", "TINYINT", "SMALLINT", "MEDIUMINT", "BIGINT":
-		return "int"
-	case "FLOAT", "DOUBLE", "REAL", "DECIMAL", "NUMERIC":
-		return "float64"
-	case "DATE", "DATETIME", "TIMESTAMP", "TIME", "YEAR":
-		return "time.Time"
-	case "BINARY", "VARBINARY", "BLOB", "LONGBLOB", "MEDIUMBLOB", "TINYBLOB":
-		return "[]byte"
-	case "BOOL", "BOOLEAN":
-		return "bool"
-	default:
-		return "string"
-	}
-}
-
 func main() {
 
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	} else {
-		fmt.Println("ENV Loaded.")
+		fmt.Printf("%sENV Loaded.%s\n", Green, Reset)
 	}
 
 	if len(os.Args) > 1 {
@@ -124,7 +69,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	} else {
-		fmt.Println("Database server connected.")
+		fmt.Printf("%sDatabase server connected.%s\n", Green, Reset)
 	}
 	defer dbNot.Close()
 
@@ -138,7 +83,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to create database: %v", err)
 	} else {
-		fmt.Println("Database connected.")
+		fmt.Printf("%sDatabase connected.%s\n", Green, Reset)
 	}
 
 	dsnWithDB := os.Getenv("DB_USER") + ":" + os.Getenv("DB_PASSWORD") + "@tcp(" + os.Getenv("DB_HOST") + ":" + os.Getenv("DB_PORT") + ")/" + os.Getenv("DB_NAME") + "?parseTime=true"
@@ -146,7 +91,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	} else {
-		fmt.Println("Database ready.")
+		fmt.Printf("%sDatabase ready.%s\n", Green, Reset)
 	}
 	defer db.Close()
 
@@ -154,7 +99,7 @@ func main() {
 	if err != nil {
 		log.Fatal("Failed to connect to database:", err)
 	} else {
-		fmt.Println("ORM Ready.")
+		fmt.Printf("%sORM Ready.%s\n", Green, Reset)
 		DB = dbGorm
 	}
 
@@ -194,6 +139,8 @@ func main() {
 	dbGorm.AutoMigrate(&models.Bike{})
 	dbGorm.AutoMigrate(&models.Animal{})
 	dbGorm.AutoMigrate(&models.Human{})
+	dbGorm.AutoMigrate(&models.Language{})
+	dbGorm.AutoMigrate(&models.Bird{})
 
 	// Create a /game endpoint
 	game := app.Group("/game")
@@ -244,6 +191,26 @@ func main() {
 	Human.Put("/:id", handlers.UpdateHuman(dbGorm))
 	Human.Get("/:id/delete", handlers.DeleteHuman(dbGorm))
 	Human.Delete("/:id", handlers.DestroyHuman(dbGorm))
+
+	// Language routes
+	Language := app.Group("/Language")
+	Language.Get("/", handlers.GetLanguages(dbGorm))
+	Language.Get("/insert", handlers.InsertLanguage())
+	Language.Post("/", handlers.CreateLanguage(dbGorm))
+	Language.Get("/:id/edit", handlers.EditLanguage(dbGorm))
+	Language.Put("/:id", handlers.UpdateLanguage(dbGorm))
+	Language.Get("/:id/delete", handlers.DeleteLanguage(dbGorm))
+	Language.Delete("/:id", handlers.DestroyLanguage(dbGorm))
+
+	// Bird routes
+	Bird := app.Group("/Bird")
+	Bird.Get("/", handlers.GetBirds(dbGorm))
+	Bird.Get("/insert", handlers.InsertBird())
+	Bird.Post("/", handlers.CreateBird(dbGorm))
+	Bird.Get("/:id/edit", handlers.EditBird(dbGorm))
+	Bird.Put("/:id", handlers.UpdateBird(dbGorm))
+	Bird.Get("/:id/delete", handlers.DeleteBird(dbGorm))
+	Bird.Delete("/:id", handlers.DestroyBird(dbGorm))
 
 	// Dev routes
 	Dev := app.Group("/dev")
