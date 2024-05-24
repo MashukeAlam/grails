@@ -434,6 +434,8 @@ func main() {
 	dbGorm.AutoMigrate(&models.Food{})
 	dbGorm.AutoMigrate(&models.Car{})
 	dbGorm.AutoMigrate(&models.Bike{})
+	dbGorm.AutoMigrate(&models.Animal{})
+	dbGorm.AutoMigrate(&models.Human{})
 
 	// Create a /game endpoint
 	game := app.Group("/game")
@@ -465,6 +467,31 @@ func main() {
 	Bike.Get("/:id/delete", handlers.DeleteBike(dbGorm))
 	Bike.Delete("/:id", handlers.DestroyBike(dbGorm))
 
+	// Animal routes
+	Animal := app.Group("/Animal")
+	Animal.Get("/", handlers.GetAnimals(dbGorm))
+	Animal.Get("/insert", handlers.InsertAnimal())
+	Animal.Post("/", handlers.CreateAnimal(dbGorm))
+	Animal.Get("/:id/edit", handlers.EditAnimal(dbGorm))
+	Animal.Put("/:id", handlers.UpdateAnimal(dbGorm))
+	Animal.Get("/:id/delete", handlers.DeleteAnimal(dbGorm))
+	Animal.Delete("/:id", handlers.DestroyAnimal(dbGorm))
+
+	// Human routes
+	Human := app.Group("/Human")
+	Human.Get("/", handlers.GetHumans(dbGorm))
+	Human.Get("/insert", handlers.InsertHuman())
+	Human.Post("/", handlers.CreateHuman(dbGorm))
+	Human.Get("/:id/edit", handlers.EditHuman(dbGorm))
+	Human.Put("/:id", handlers.UpdateHuman(dbGorm))
+	Human.Get("/:id/delete", handlers.DeleteHuman(dbGorm))
+	Human.Delete("/:id", handlers.DestroyHuman(dbGorm))
+
+	// Dev routes
+	Dev := app.Group("/dev")
+	Dev.Get("/", handlers.GetDevView())
+	Dev.Post("/", handlers.ProcessIncomingScaffoldData(dbGorm))
+
 	// Setup static files
 	app.Static("/js", "./static/public/js")
 	app.Static("/img", "./static/public/img")
@@ -472,24 +499,6 @@ func main() {
 
 	// Handle not founds
 	app.Use(handlers.NotFound)
-	//
-	//tableName1 := "bike"
-	//fields1 := []Field{
-	//	{Name: "name", Type: "VARCHAR(100) NOT NULL"},
-	//	{Name: "type", Type: "VARCHAR(10) NOT NULL"},
-	//	{Name: "isCheap", Type: "TINYINT(1) NOT NULL"},
-	//}
-	//
-	////Generate the migration files
-	//generateCreateMigration(tableName1, fields1)
-
-	// tableName2 := "player"
-	// fields2 := []Field{
-	// 	{Name: "name", Type: "VARCHAR(300) NOT NULL"},
-	// }
-
-	// // Generate the migration files
-	// generateCreateMigration(tableName2, fields2, "game")
 
 	// Listen on port 5000
 	log.Fatal(app.Listen(*port))
