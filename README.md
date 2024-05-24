@@ -19,7 +19,7 @@ go run app.go
 
 *Check the handler file as it might have one typo in some cases and also check the yellow lines as it assumes your database is stored in db variable which may also might not be the case everytime.*
 
-### Create migrations (the old way)
+### Create scaffold (the old way)
 **This method is buggy and no longer maintained. Use frontend to create whole scaffold with no code.**
 
 Write less code and call generateMigrations. This will come to CLI soon.
