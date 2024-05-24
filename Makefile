@@ -1,4 +1,4 @@
-project_name = boilerPlate
+project_name = grails
 image_name = gofiber:latest
 
 help: ## This help dialog.

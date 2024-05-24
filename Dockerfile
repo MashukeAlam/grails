@@ -2,7 +2,7 @@
 FROM golang:1.19 AS build
 
 # `boilerplate` should be replaced with your project name
-WORKDIR /go/src/boilerplate
+WORKDIR /go/src/grails
 
 # Copy all the Code and stuff to compile everything
 COPY . .
@@ -32,6 +32,6 @@ RUN apk -U upgrade \
     && chmod +x /app/app
 
 # Exposes port 3000 because our program listens on that port
-EXPOSE 3000
+EXPOSE 5000
 
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
