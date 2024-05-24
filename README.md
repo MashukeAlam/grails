@@ -1,6 +1,5 @@
 # Grails - A GoFiber web framework for Rails lovers 💚!
 
-[![Discord](https://img.shields.io/badge/discord-join%20channel-7289DA)](https://gofiber.io/discord)
 
 ## Development
 
@@ -36,10 +35,11 @@ generateMigration(tableName2, fields2)
 ```
 WARNING: Remember to uncomment these lines after running once or they will keep adding .sql files.
 
+**This code will return the automigrate code and routing codes in the terminal. Paste those in the main function.**
 
-### Run migrations
+### Run migrations using goose
 
-
+If you are not using Gorm automigrate, you can use goose. that way you can migrate up & down. This feature is not tested so use with caution. Ensure Goose in PATH.
 ```bash
 go run app.go migrate up
 ```
@@ -51,3 +51,5 @@ Attributions:
 This project is built on the boilerplate that Fiber provides and I respects all the people that implemented the initial foundation.
 
 [![Repo](https://img.shields.io/badge/repository-link-cyan)](https://github.com/gofiber/boilerplate)
+
+[![Discord](https://img.shields.io/badge/discord-join%20channel-7289DA)](https://gofiber.io/discord)
