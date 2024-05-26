@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 	"text/template"
 )
@@ -19,7 +20,6 @@ func CreateModel(tableName string, fields []Field, reference ...string) {
 	modelName := ToCamelCase(tableName)
 	modelContent := fmt.Sprintf("package models\n\nimport \"gorm.io/gorm\"\n\n// %s model\ntype %s struct {\n", modelName, modelName)
 	modelContent += "	gorm.Model\n"
-	fmt.Println(modelName, "Here\n")
 	for _, field := range fields {
 		fieldName := ToCamelCase(field.Name)
 		goType := field.Type
@@ -44,6 +44,41 @@ func CreateModel(tableName string, fields []Field, reference ...string) {
 	// TODO: autoMigrate here gorm model.
 	fmt.Printf("%s\n\n\ndbGorm.AutoMigrate(&models.%s{})%s\n\n\n", Green, modelName, Reset)
 	generateHandlerFile(modelName)
+
+    // Generate index view template
+    viewContent := fmt.Sprintf(`{{define "content"}}
+<h2>%s</h2>
+<a href="/%s/insert">Add +</a>
+<table>
+    <thead>
+    <tr>
+        {{range .Fields}}
+        <th>{{.Name}}</th>
+        {{end}}
+        <th>Actions</th>
+        <th>Created At</th>
+    </tr>
+    </thead>
+    <tbody>
+    {{range .Records}}
+    <tr>
+        {{range .Fields}}
+        <td>{{.Value}}</td>
+        {{end}}
+        <td><a href="/%s/{{.ID}}/edit">Edit</a>|<a href="/%s/{{.ID}}/delete">Del</a></td>
+        <td>{{.CreatedAt}}</td>
+    </tr>
+    {{end}}
+    </tbody>
+</table>
+{{end}}`, tableName, tableName, tableName, tableName)
+
+    // Write the view file
+    viewFileName := filepath.Join("views", modelName, "index.html")
+    if err := os.WriteFile(viewFileName, []byte(viewContent), 0644); err != nil {
+        log.Fatalf("Failed to write view file: %v", err)
+    }
+    fmt.Printf("View file %s created successfully.\n", viewFileName)
 	os.Exit(1)
 }
 
@@ -203,13 +238,13 @@ func Destroy{{.ModelName}}(db *gorm.DB) fiber.Handler {
 	routeRegistration := fmt.Sprintf(`
 // %s routes
 %s := app.Group("/%s")
-%s.Get("/", handlers.Get%s(db))
+%s.Get("/", handlers.Get%s(dbGorm))
 %s.Get("/insert", handlers.Insert%s())
-%s.Post("/", handlers.Create%s(db))
-%s.Get("/:id/edit", handlers.Edit%s(db))
-%s.Put("/:id", handlers.Update%s(db))
-%s.Get("/:id/delete", handlers.Delete%s(db))
-%s.Delete("/:id", handlers.Destroy%s(db))
+%s.Post("/", handlers.Create%s(dbGorm))
+%s.Get("/:id/edit", handlers.Edit%s(dbGorm))
+%s.Put("/:id", handlers.Update%s(dbGorm))
+%s.Get("/:id/delete", handlers.Delete%s(dbGorm))
+%s.Delete("/:id", handlers.Destroy%s(dbGorm))
 `, strings.Title(modelName), modelName, modelName, modelName, strings.Title(modelName), modelName, strings.Title(modelName), modelName, strings.Title(modelName), modelName, strings.Title(modelName), modelName, strings.Title(modelName), modelName, strings.Title(modelName), modelName, modelName)
 
 	// Print the route registration code in yellow color
