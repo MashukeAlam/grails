@@ -143,6 +143,7 @@ func main() {
 	dbGorm.AutoMigrate(&models.Bird{})
 	dbGorm.AutoMigrate(&models.Electronic{})
 	dbGorm.AutoMigrate(&models.Girl{})
+	dbGorm.AutoMigrate(&models.Laptop{})
 
 	// Create a /game endpoint
 	game := app.Group("/game")
@@ -224,6 +225,16 @@ func main() {
 	Girl.Get("/:id/delete", handlers.DeleteGirl(dbGorm))
 	Girl.Delete("/:id", handlers.DestroyGirl(dbGorm))
 
+	// Laptop routes
+	Laptop := app.Group("/Laptops")
+	Laptop.Get("/", handlers.GetLaptops(dbGorm))
+	Laptop.Get("/insert", handlers.InsertLaptop())
+	Laptop.Post("/", handlers.CreateLaptop(dbGorm))
+	Laptop.Get("/:id/edit", handlers.EditLaptop(dbGorm))
+	Laptop.Put("/:id", handlers.UpdateLaptop(dbGorm))
+	Laptop.Get("/:id/delete", handlers.DeleteLaptop(dbGorm))
+	Laptop.Delete("/:id", handlers.DestroyLaptop(dbGorm))
+
 	// Dev routes
 	Dev := app.Group("/dev")
 	Dev.Get("/", handlers.GetDevView())
@@ -238,6 +249,34 @@ func main() {
 	Electronic.Put("/:id", handlers.UpdateElectronic(dbGorm))
 	Electronic.Get("/:id/delete", handlers.DeleteElectronic(dbGorm))
 	Electronic.Delete("/:id", handlers.DestroyElectronic(dbGorm))
+
+	dbGorm.AutoMigrate(&models.Mobile{})
+
+
+
+	// Mobile routes
+	Mobile := app.Group("/Mobiles")
+	Mobile.Get("/", handlers.GetMobiles(dbGorm))
+	Mobile.Get("/insert", handlers.InsertMobile())
+	Mobile.Post("/", handlers.CreateMobile(dbGorm))
+	Mobile.Get("/:id/edit", handlers.EditMobile(dbGorm))
+	Mobile.Put("/:id", handlers.UpdateMobile(dbGorm))
+	Mobile.Get("/:id/delete", handlers.DeleteMobile(dbGorm))
+	Mobile.Delete("/:id", handlers.DestroyMobile(dbGorm))
+
+	dbGorm.AutoMigrate(&models.Smartphone{})
+
+
+
+	// Smartphone routes
+	Smartphone := app.Group("/Smartphones")
+	Smartphone.Get("/", handlers.GetSmartphones(dbGorm))
+	Smartphone.Get("/insert", handlers.InsertSmartphone())
+	Smartphone.Post("/", handlers.CreateSmartphone(dbGorm))
+	Smartphone.Get("/:id/edit", handlers.EditSmartphone(dbGorm))
+	Smartphone.Put("/:id", handlers.UpdateSmartphone(dbGorm))
+	Smartphone.Get("/:id/delete", handlers.DeleteSmartphone(dbGorm))
+	Smartphone.Delete("/:id", handlers.DestroySmartphone(dbGorm))
 
 	// Setup static files
 	app.Static("/js", "./static/public/js")

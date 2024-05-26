@@ -46,33 +46,7 @@ func CreateModel(tableName string, fields []Field, reference ...string) {
 	generateHandlerFile(modelName)
 
     // Generate index view template
-    viewContent := fmt.Sprintf(`{{define "content"}}
-<h2>%s</h2>
-<a href="/%s/insert">Add +</a>
-<table>
-    <thead>
-    <tr>
-        {{range .Fields}}
-        <th>{{.Name}}</th>
-        {{end}}
-        <th>Actions</th>
-        <th>Created At</th>
-    </tr>
-    </thead>
-    <tbody>
-    {{range .Records}}
-    <tr>
-        {{range .Fields}}
-        <td>{{.Value}}</td>
-        {{end}}
-        <td><a href="/%s/{{.ID}}/edit">Edit</a>|<a href="/%s/{{.ID}}/delete">Del</a></td>
-        <td>{{.CreatedAt}}</td>
-    </tr>
-    {{end}}
-    </tbody>
-</table>
-{{end}}`, tableName, tableName, tableName, tableName)
-
+    viewContent := generateIndexViewContent(tableName, fields)
     // Write the view file
 	// View directory
 	viewDirPlural := strings.ToLower(tableName)
@@ -100,6 +74,40 @@ func CreateModel(tableName string, fields []Field, reference ...string) {
 
 }
 
+func generateIndexViewContent(tableName string, fields []Field) string {
+    var tableHeaders, tableRows strings.Builder
+
+    // Generate table headers
+    for _, field := range fields {
+        tableHeaders.WriteString(fmt.Sprintf("<th>%s</th>", field.Name))
+    }
+
+    // Generate table rows
+    tableRows.WriteString("{{range .Records}}<tr>")
+    for _, field := range fields {
+        tableRows.WriteString(fmt.Sprintf("<td>{{.%s}}</td>", ToCamelCase(field.Name)))
+    }
+    tableRows.WriteString(`
+        <td>
+            <a href="/{{.ID}}/edit">Edit</a> |
+            <a href="/{{.ID}}/delete">Delete</a>
+        </td>
+        <td>{{.CreatedAt}}</td>
+    </tr>{{end}}`)
+
+    return fmt.Sprintf(`
+    <h2>All %s</h2>
+    <a href="/%ss/insert">Add +</a>
+    <table>
+        <thead>
+            <tr>%s<th>Actions</th><th>Created At</th></tr>
+        </thead>
+        <tbody>%s</tbody>
+    </table>
+    `, tableName, tableName, tableHeaders.String(), tableRows.String())
+}
+
+
 func generateInsertViewContent(tableName string, fields []Field) string {
     var formFields strings.Builder
     for _, field := range fields {
@@ -109,13 +117,13 @@ func generateInsertViewContent(tableName string, fields []Field) string {
         `, field.Name, field.Name, field.Type, field.Name, field.Name))
     }
 
-    return fmt.Sprintf(`{{define "content"}}
+    return fmt.Sprintf(`
     <h2>Add %s</h2>
-    <form action="/%s" method="POST">
+    <form action="/%ss" method="POST">
         %s
         <button type="submit">Add %s</button>
     </form>
-    {{end}}`, tableName, tableName, formFields.String(), tableName)
+    `, tableName, tableName, formFields.String(), tableName)
 }
 
 func generateHandlerFile(modelName string) {
@@ -139,7 +147,7 @@ func Get{{.ModelName}}s(db *gorm.DB) fiber.Handler {
 		}
 		return c.Render("{{.ModelNameLowercase}}s/index", fiber.Map{
 			"Title": "All {{.ModelName}}s",
-			"{{.ModelNamePlural}}": {{.ModelNamePlural}},
+			"Records": {{.ModelNamePlural}},
 		}, "layouts/main")
 	}
 }
@@ -269,12 +277,11 @@ func Destroy{{.ModelName}}(db *gorm.DB) fiber.Handler {
 		panic(err)
 	}
 
-	fmt.Printf("Handler file %s created successfully.\n", handlerFileName)
 	// Generate the route registration code for the model
 	routeRegistration := fmt.Sprintf(`
 // %s routes
-%s := app.Group("/%s")
-%s.Get("/", handlers.Get%s(dbGorm))
+%s := app.Group("/%ss")
+%s.Get("/", handlers.Get%ss(dbGorm))
 %s.Get("/insert", handlers.Insert%s())
 %s.Post("/", handlers.Create%s(dbGorm))
 %s.Get("/:id/edit", handlers.Edit%s(dbGorm))
@@ -283,6 +290,7 @@ func Destroy{{.ModelName}}(db *gorm.DB) fiber.Handler {
 %s.Delete("/:id", handlers.Destroy%s(dbGorm))
 `, strings.Title(modelName), modelName, modelName, modelName, strings.Title(modelName), modelName, strings.Title(modelName), modelName, strings.Title(modelName), modelName, strings.Title(modelName), modelName, strings.Title(modelName), modelName, strings.Title(modelName), modelName, modelName)
 
-	// Print the route registration code in yellow color
-	fmt.Println("\033[33m" + routeRegistration + "\033[0m")
+// Print the route registration code in yellow color
+fmt.Println("\033[33m" + routeRegistration + "\033[0m")
+fmt.Printf("Handler file %s created successfully.\n", handlerFileName)
 }

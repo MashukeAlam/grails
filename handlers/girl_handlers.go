@@ -17,7 +17,7 @@ func GetGirls(db *gorm.DB) fiber.Handler {
 		}
 		return c.Render("girls/index", fiber.Map{
 			"Title": "All Girls",
-			"Girls": Girls,
+			"Records": Girls,
 		}, "layouts/main")
 	}
 }
