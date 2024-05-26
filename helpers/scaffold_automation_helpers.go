@@ -74,7 +74,14 @@ func CreateModel(tableName string, fields []Field, reference ...string) {
 {{end}}`, tableName, tableName, tableName, tableName)
 
     // Write the view file
-    viewFileName := filepath.Join("views", modelName, "index.html")
+	// View directory
+    viewDir := filepath.Join("views", strings.ToLower(tableName))
+
+    // Ensure the view directory exists
+    if err := os.MkdirAll(viewDir, os.ModePerm); err != nil {
+        log.Fatalf("Failed to create views directory: %v", err)
+    }
+    viewFileName := filepath.Join(viewDir, "index.html")
     if err := os.WriteFile(viewFileName, []byte(viewContent), 0644); err != nil {
         log.Fatalf("Failed to write view file: %v", err)
     }
