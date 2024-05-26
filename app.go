@@ -141,6 +141,8 @@ func main() {
 	dbGorm.AutoMigrate(&models.Human{})
 	dbGorm.AutoMigrate(&models.Language{})
 	dbGorm.AutoMigrate(&models.Bird{})
+	dbGorm.AutoMigrate(&models.Electronic{})
+	dbGorm.AutoMigrate(&models.Girl{})
 
 	// Create a /game endpoint
 	game := app.Group("/game")
@@ -212,10 +214,30 @@ func main() {
 	Bird.Get("/:id/delete", handlers.DeleteBird(dbGorm))
 	Bird.Delete("/:id", handlers.DestroyBird(dbGorm))
 
+	// Girl routes
+	Girl := app.Group("/Girls")
+	Girl.Get("/", handlers.GetGirls(dbGorm))
+	Girl.Get("/insert", handlers.InsertGirl())
+	Girl.Post("/", handlers.CreateGirl(dbGorm))
+	Girl.Get("/:id/edit", handlers.EditGirl(dbGorm))
+	Girl.Put("/:id", handlers.UpdateGirl(dbGorm))
+	Girl.Get("/:id/delete", handlers.DeleteGirl(dbGorm))
+	Girl.Delete("/:id", handlers.DestroyGirl(dbGorm))
+
 	// Dev routes
 	Dev := app.Group("/dev")
 	Dev.Get("/", handlers.GetDevView())
 	Dev.Post("/", handlers.ProcessIncomingScaffoldData(dbGorm))
+
+	// Electronic routes
+	Electronic := app.Group("/Electronic")
+	Electronic.Get("/", handlers.GetElectronics(dbGorm))
+	Electronic.Get("/insert", handlers.InsertElectronic())
+	Electronic.Post("/", handlers.CreateElectronic(dbGorm))
+	Electronic.Get("/:id/edit", handlers.EditElectronic(dbGorm))
+	Electronic.Put("/:id", handlers.UpdateElectronic(dbGorm))
+	Electronic.Get("/:id/delete", handlers.DeleteElectronic(dbGorm))
+	Electronic.Delete("/:id", handlers.DestroyElectronic(dbGorm))
 
 	// Setup static files
 	app.Static("/js", "./static/public/js")

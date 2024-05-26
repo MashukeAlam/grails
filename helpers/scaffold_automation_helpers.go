@@ -75,7 +75,9 @@ func CreateModel(tableName string, fields []Field, reference ...string) {
 
     // Write the view file
 	// View directory
-    viewDir := filepath.Join("views", strings.ToLower(tableName))
+	viewDirPlural := strings.ToLower(tableName)
+	viewDirPlural += "s"
+    viewDir := filepath.Join("views", viewDirPlural)
 
     // Ensure the view directory exists
     if err := os.MkdirAll(viewDir, os.ModePerm); err != nil {
@@ -85,8 +87,35 @@ func CreateModel(tableName string, fields []Field, reference ...string) {
     if err := os.WriteFile(viewFileName, []byte(viewContent), 0644); err != nil {
         log.Fatalf("Failed to write view file: %v", err)
     }
-    fmt.Printf("View file %s created successfully.\n", viewFileName)
+    fmt.Printf("Index View file %s created successfully.\n", viewFileName)
+	
+	insertContent := generateInsertViewContent(tableName, fields)
+	viewFileName = filepath.Join(viewDir, "insert.html")
+    if err := os.WriteFile(viewFileName, []byte(insertContent), 0644); err != nil {
+        log.Fatalf("Failed to write view file: %v", err)
+    }
+    fmt.Printf("Insert View file %s created successfully.\n", viewFileName)
+	
 	os.Exit(1)
+
+}
+
+func generateInsertViewContent(tableName string, fields []Field) string {
+    var formFields strings.Builder
+    for _, field := range fields {
+        formFields.WriteString(fmt.Sprintf(`
+            <label for="%s">%s:</label>
+            <input type="%s" id="%s" name="%s" required>
+        `, field.Name, field.Name, field.Type, field.Name, field.Name))
+    }
+
+    return fmt.Sprintf(`{{define "content"}}
+    <h2>Add %s</h2>
+    <form action="/%s" method="POST">
+        %s
+        <button type="submit">Add %s</button>
+    </form>
+    {{end}}`, tableName, tableName, formFields.String(), tableName)
 }
 
 func generateHandlerFile(modelName string) {
