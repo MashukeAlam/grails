@@ -1,4 +1,4 @@
-# Grails - A GoFiber web framework for Rails lovers 💚!
+# Grails - A Go web framework for Rails lovers 💚!
 
 
 ## Development
