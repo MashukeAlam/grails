@@ -190,4 +190,14 @@ func SetupRoutes(app *fiber.App, dbGorm *gorm.DB) {
 	Dev.Get("/", handlers.GetDevView())
 	Dev.Post("/", handlers.ProcessIncomingScaffoldData(dbGorm))
 
+	// Mouse routes
+	Mouse := app.Group("/Mouses")
+	Mouse.Get("/", handlers.GetMouses(dbGorm))
+	Mouse.Get("/insert", handlers.InsertMouse())
+	Mouse.Post("/", handlers.CreateMouse(dbGorm))
+	Mouse.Get("/:id/edit", handlers.EditMouse(dbGorm))
+	Mouse.Put("/:id", handlers.UpdateMouse(dbGorm))
+	Mouse.Get("/:id/delete", handlers.DeleteMouse(dbGorm))
+	Mouse.Delete("/:id", handlers.DestroyMouse(dbGorm))
+
 }
