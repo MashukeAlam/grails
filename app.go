@@ -284,6 +284,26 @@ func main() {
 	Tissue.Get("/:id/delete", handlers.DeleteTissue(dbGorm))
 	Tissue.Delete("/:id", handlers.DestroyTissue(dbGorm))
 
+	// Perfume routes
+	Perfume := app.Group("/Perfumes")
+	Perfume.Get("/", handlers.GetPerfumes(dbGorm))
+	Perfume.Get("/insert", handlers.InsertPerfume())
+	Perfume.Post("/", handlers.CreatePerfume(dbGorm))
+	Perfume.Get("/:id/edit", handlers.EditPerfume(dbGorm))
+	Perfume.Put("/:id", handlers.UpdatePerfume(dbGorm))
+	Perfume.Get("/:id/delete", handlers.DeletePerfume(dbGorm))
+	Perfume.Delete("/:id", handlers.DestroyPerfume(dbGorm))
+
+	// Card routes
+	Card := app.Group("/Cards")
+	Card.Get("/", handlers.GetCards(dbGorm))
+	Card.Get("/insert", handlers.InsertCard())
+	Card.Post("/", handlers.CreateCard(dbGorm))
+	Card.Get("/:id/edit", handlers.EditCard(dbGorm))
+	Card.Put("/:id", handlers.UpdateCard(dbGorm))
+	Card.Get("/:id/delete", handlers.DeleteCard(dbGorm))
+	Card.Delete("/:id", handlers.DestroyCard(dbGorm))
+
 	// Dev routes
 	Dev := app.Group("/dev")
 	Dev.Get("/", handlers.GetDevView())

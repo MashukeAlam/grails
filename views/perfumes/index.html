@@ -1,0 +1,16 @@
+
+    <h2>All Perfume</h2>
+    <a href="/Perfumes/insert">Add +</a>
+    <table>
+        <thead>
+            <tr><th> name</th><th>price</th><th>Actions</th><th>Created At</th></tr>
+        </thead>
+        <tbody>{{range .Records}}<tr><td>{{.name}}</td><td>{{.Price}}</td>
+        <td>
+            <a href="perfumes/{{.ID}}/edit">Edit</a> |
+            <a href="perfumes/{{.ID}}/delete">Delete</a>
+        </td>
+        <td>{{.CreatedAt}}</td>
+    </tr>{{end}}</tbody>
+    </table>
+    
