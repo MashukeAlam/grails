@@ -2,6 +2,7 @@ package helpers
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -118,6 +119,45 @@ func Migrate(db *gorm.DB) {
 		fmt.Printf("Migration for %s appended to %s successfully.\n", modelName, migrationFileName)
 
 	}
+}
+
+func appendRoutesCode(codeToAdd string) error {
+	// Define the file path
+	filePath := "internals/routes.go"
+
+	// Check if the file already exists
+	_, err := os.Stat(filePath)
+	if os.IsNotExist(err) {
+		// Create the file if it doesn't exist
+		file, err := os.Create(filePath)
+		if err != nil {
+			return err
+		}
+		defer file.Close()
+	}
+
+	// Read the existing content of the file
+	content, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		return err
+	}
+
+	// Convert content to string
+	fileContent := string(content)
+
+	// Find the index of closing braces of SetupRoutes function
+	idx := strings.LastIndex(fileContent, "}")
+
+	// Append the codeToAdd before the closing braces
+	newContent := fileContent[:idx] + codeToAdd + "\n}" + fileContent[idx+1:]
+
+	// Write the updated content back to the file
+	err = ioutil.WriteFile(filePath, []byte(newContent), 0644)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func generateIndexViewContent(tableName string, fields []Field) string {
@@ -337,5 +377,6 @@ func Destroy{{.ModelName}}(db *gorm.DB) fiber.Handler {
 
 	// Print the route registration code in yellow color
 	fmt.Println("\033[33m" + routeRegistration + "\033[0m")
+	appendRoutesCode(routeRegistration)
 	fmt.Printf("Handler file %s created successfully.\n", handlerFileName)
 }
