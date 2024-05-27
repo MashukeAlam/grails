@@ -41,61 +41,103 @@ func CreateModel(tableName string, fields []Field, reference ...string) {
 	}
 	fmt.Printf("Model file %s created successfully.\n", modelFileName)
 
+	appendMigrationCode(modelName)
+
 	// TODO: autoMigrate here gorm model.
 	fmt.Printf("%s\n\n\ndbGorm.AutoMigrate(&models.%s{})%s\n\n\n", Green, modelName, Reset)
 	generateHandlerFile(modelName)
 
-    // Generate index view template
-    viewContent := generateIndexViewContent(tableName, fields)
-    // Write the view file
+	// Generate index view template
+	viewContent := generateIndexViewContent(tableName, fields)
+	// Write the view file
 	// View directory
 	viewDirPlural := strings.ToLower(tableName)
 	viewDirPlural += "s"
-    viewDir := filepath.Join("views", viewDirPlural)
+	viewDir := filepath.Join("views", viewDirPlural)
 
-    // Ensure the view directory exists
-    if err := os.MkdirAll(viewDir, os.ModePerm); err != nil {
-        log.Fatalf("Failed to create views directory: %v", err)
-    }
-    viewFileName := filepath.Join(viewDir, "index.html")
-    if err := os.WriteFile(viewFileName, []byte(viewContent), 0644); err != nil {
-        log.Fatalf("Failed to write view file: %v", err)
-    }
-    fmt.Printf("Index View file %s created successfully.\n", viewFileName)
-	
+	// Ensure the view directory exists
+	if err := os.MkdirAll(viewDir, os.ModePerm); err != nil {
+		log.Fatalf("Failed to create views directory: %v", err)
+	}
+	viewFileName := filepath.Join(viewDir, "index.html")
+	if err := os.WriteFile(viewFileName, []byte(viewContent), 0644); err != nil {
+		log.Fatalf("Failed to write view file: %v", err)
+	}
+	fmt.Printf("Index View file %s created successfully.\n", viewFileName)
+
 	insertContent := generateInsertViewContent(tableName, fields)
 	viewFileName = filepath.Join(viewDir, "insert.html")
-    if err := os.WriteFile(viewFileName, []byte(insertContent), 0644); err != nil {
-        log.Fatalf("Failed to write view file: %v", err)
-    }
-    fmt.Printf("Insert View file %s created successfully.\n", viewFileName)
-	
+	if err := os.WriteFile(viewFileName, []byte(insertContent), 0644); err != nil {
+		log.Fatalf("Failed to write view file: %v", err)
+	}
+	fmt.Printf("Insert View file %s created successfully.\n", viewFileName)
+
 	os.Exit(1)
 
 }
 
+func appendMigrationCode(modelName string) {
+	migrationFileName := "internals/migrations.go"
+	migrationFunction := `package internals
+
+import (
+	"gorm.io/gorm"
+	"grails/models"
+)
+
+func Migrate(db *gorm.DB) {
+`
+	migrationCode := fmt.Sprintf("\tdb.AutoMigrate(&models.%s{})\n", modelName)
+
+	// Check if the migration file exists
+	if _, err := os.Stat(migrationFileName); os.IsNotExist(err) {
+		// Create the migration file with the function definition
+		err := os.WriteFile(migrationFileName, []byte(migrationFunction+migrationCode+"}\n"), 0644)
+		if err != nil {
+			log.Fatalf("Failed to create migration file: %v", err)
+		}
+		fmt.Printf("Migration file %s created successfully.\n", migrationFileName)
+	} else {
+		// Append the migration code to the existing function
+		file, err := os.OpenFile(migrationFileName, os.O_APPEND|os.O_WRONLY, 0644)
+		if err != nil {
+			log.Fatalf("Failed to open migration file: %v", err)
+		}
+		defer file.Close()
+
+		// Remove the closing brace of the function
+		file.Seek(-2, os.SEEK_END)
+
+		// Append the migration code
+		if _, err := file.WriteString(migrationCode + "}\n"); err != nil {
+			log.Fatalf("Failed to append to migration file: %v", err)
+		}
+		fmt.Printf("Appended migration code to %s.\n", migrationFileName)
+	}
+}
+
 func generateIndexViewContent(tableName string, fields []Field) string {
-    var tableHeaders, tableRows strings.Builder
+	var tableHeaders, tableRows strings.Builder
 
-    // Generate table headers
-    for _, field := range fields {
-        tableHeaders.WriteString(fmt.Sprintf("<th>%s</th>", field.Name))
-    }
+	// Generate table headers
+	for _, field := range fields {
+		tableHeaders.WriteString(fmt.Sprintf("<th>%s</th>", field.Name))
+	}
 
-    // Generate table rows
-    tableRows.WriteString("{{range .Records}}<tr>")
-    for _, field := range fields {
-        tableRows.WriteString(fmt.Sprintf("<td>{{.%s}}</td>", ToCamelCase(field.Name)))
-    }
-    tableRows.WriteString(`
+	// Generate table rows
+	tableRows.WriteString("{{range .Records}}<tr>")
+	for _, field := range fields {
+		tableRows.WriteString(fmt.Sprintf("<td>{{.%s}}</td>", ToCamelCase(field.Name)))
+	}
+	tableRows.WriteString(fmt.Sprintf(`
         <td>
-            <a href="/{{.ID}}/edit">Edit</a> |
-            <a href="/{{.ID}}/delete">Delete</a>
+            <a href="%ss/{{.ID}}/edit">Edit</a> |
+            <a href="%ss/{{.ID}}/delete">Delete</a>
         </td>
         <td>{{.CreatedAt}}</td>
-    </tr>{{end}}`)
+    </tr>{{end}}`, strings.ToLower(tableName), strings.ToLower(tableName)))
 
-    return fmt.Sprintf(`
+	return fmt.Sprintf(`
     <h2>All %s</h2>
     <a href="/%ss/insert">Add +</a>
     <table>
@@ -107,17 +149,16 @@ func generateIndexViewContent(tableName string, fields []Field) string {
     `, tableName, tableName, tableHeaders.String(), tableRows.String())
 }
 
-
 func generateInsertViewContent(tableName string, fields []Field) string {
-    var formFields strings.Builder
-    for _, field := range fields {
-        formFields.WriteString(fmt.Sprintf(`
+	var formFields strings.Builder
+	for _, field := range fields {
+		formFields.WriteString(fmt.Sprintf(`
             <label for="%s">%s:</label>
             <input type="%s" id="%s" name="%s" required>
         `, field.Name, field.Name, field.Type, field.Name, field.Name))
-    }
+	}
 
-    return fmt.Sprintf(`
+	return fmt.Sprintf(`
     <h2>Add %s</h2>
     <form action="/%ss" method="POST">
         %s
@@ -290,7 +331,7 @@ func Destroy{{.ModelName}}(db *gorm.DB) fiber.Handler {
 %s.Delete("/:id", handlers.Destroy%s(dbGorm))
 `, strings.Title(modelName), modelName, modelName, modelName, strings.Title(modelName), modelName, strings.Title(modelName), modelName, strings.Title(modelName), modelName, strings.Title(modelName), modelName, strings.Title(modelName), modelName, strings.Title(modelName), modelName, modelName)
 
-// Print the route registration code in yellow color
-fmt.Println("\033[33m" + routeRegistration + "\033[0m")
-fmt.Printf("Handler file %s created successfully.\n", handlerFileName)
+	// Print the route registration code in yellow color
+	fmt.Println("\033[33m" + routeRegistration + "\033[0m")
+	fmt.Printf("Handler file %s created successfully.\n", handlerFileName)
 }

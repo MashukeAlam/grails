@@ -52,17 +52,6 @@ func main() {
 		fmt.Printf("%sENV Loaded.%s\n", Green, Reset)
 	}
 
-	if len(os.Args) > 1 {
-		// Check for migration command
-		if os.Args[1] == "migrate" && len(os.Args) == 3 {
-			internals.Migrate(os.Args[2]) // Run the migrate function with the direction
-			return
-		} else {
-			log.Println("Usage: app migrate <up|down>")
-			os.Exit(1)
-		}
-	}
-
 	// Database connection string
 	dsn := os.Getenv("DB_USER") + ":" + os.Getenv("DB_PASSWORD") + "@tcp(" + os.Getenv("DB_HOST") + ":" + os.Getenv("DB_PORT") + ")/"
 	dbNot, err := sql.Open("mysql", dsn)
@@ -103,6 +92,17 @@ func main() {
 		DB = dbGorm
 	}
 
+	if len(os.Args) > 1 {
+		// Check for migration command
+		if os.Args[1] == "migrate" {
+			internals.Migrate(dbGorm) // Run the migrate function with the direction
+			return
+		} else {
+			log.Println("For Migration, please type: go run app.go migrate")
+			os.Exit(1)
+		}
+	}
+
 	// Create a new engine
 	engine := html.New("views", ".html")
 
@@ -129,21 +129,6 @@ func main() {
 			"Title": "Hello, Fiber with Slim!",
 		}, "layouts/main")
 	})
-
-	// add models to watch for migration.
-	dbGorm.AutoMigrate(&models.Game{})
-	dbGorm.AutoMigrate(&models.Player{})
-	dbGorm.AutoMigrate(&models.Country{})
-	dbGorm.AutoMigrate(&models.Food{})
-	dbGorm.AutoMigrate(&models.Car{})
-	dbGorm.AutoMigrate(&models.Bike{})
-	dbGorm.AutoMigrate(&models.Animal{})
-	dbGorm.AutoMigrate(&models.Human{})
-	dbGorm.AutoMigrate(&models.Language{})
-	dbGorm.AutoMigrate(&models.Bird{})
-	dbGorm.AutoMigrate(&models.Electronic{})
-	dbGorm.AutoMigrate(&models.Girl{})
-	dbGorm.AutoMigrate(&models.Laptop{})
 
 	// Create a /game endpoint
 	game := app.Group("/game")
@@ -235,11 +220,6 @@ func main() {
 	Laptop.Get("/:id/delete", handlers.DeleteLaptop(dbGorm))
 	Laptop.Delete("/:id", handlers.DestroyLaptop(dbGorm))
 
-	// Dev routes
-	Dev := app.Group("/dev")
-	Dev.Get("/", handlers.GetDevView())
-	Dev.Post("/", handlers.ProcessIncomingScaffoldData(dbGorm))
-
 	// Electronic routes
 	Electronic := app.Group("/Electronic")
 	Electronic.Get("/", handlers.GetElectronics(dbGorm))
@@ -251,8 +231,6 @@ func main() {
 	Electronic.Delete("/:id", handlers.DestroyElectronic(dbGorm))
 
 	dbGorm.AutoMigrate(&models.Mobile{})
-
-
 
 	// Mobile routes
 	Mobile := app.Group("/Mobiles")
@@ -266,8 +244,6 @@ func main() {
 
 	dbGorm.AutoMigrate(&models.Smartphone{})
 
-
-
 	// Smartphone routes
 	Smartphone := app.Group("/Smartphones")
 	Smartphone.Get("/", handlers.GetSmartphones(dbGorm))
@@ -277,6 +253,41 @@ func main() {
 	Smartphone.Put("/:id", handlers.UpdateSmartphone(dbGorm))
 	Smartphone.Get("/:id/delete", handlers.DeleteSmartphone(dbGorm))
 	Smartphone.Delete("/:id", handlers.DestroySmartphone(dbGorm))
+
+	// Monitor routes
+	Monitor := app.Group("/Monitors")
+	Monitor.Get("/", handlers.GetMonitors(dbGorm))
+	Monitor.Get("/insert", handlers.InsertMonitor())
+	Monitor.Post("/", handlers.CreateMonitor(dbGorm))
+	Monitor.Get("/:id/edit", handlers.EditMonitor(dbGorm))
+	Monitor.Put("/:id", handlers.UpdateMonitor(dbGorm))
+	Monitor.Get("/:id/delete", handlers.DeleteMonitor(dbGorm))
+	Monitor.Delete("/:id", handlers.DestroyMonitor(dbGorm))
+
+	// Pen routes
+	Pen := app.Group("/Pens")
+	Pen.Get("/", handlers.GetPens(dbGorm))
+	Pen.Get("/insert", handlers.InsertPen())
+	Pen.Post("/", handlers.CreatePen(dbGorm))
+	Pen.Get("/:id/edit", handlers.EditPen(dbGorm))
+	Pen.Put("/:id", handlers.UpdatePen(dbGorm))
+	Pen.Get("/:id/delete", handlers.DeletePen(dbGorm))
+	Pen.Delete("/:id", handlers.DestroyPen(dbGorm))
+
+	// Tissue routes
+	Tissue := app.Group("/Tissues")
+	Tissue.Get("/", handlers.GetTissues(dbGorm))
+	Tissue.Get("/insert", handlers.InsertTissue())
+	Tissue.Post("/", handlers.CreateTissue(dbGorm))
+	Tissue.Get("/:id/edit", handlers.EditTissue(dbGorm))
+	Tissue.Put("/:id", handlers.UpdateTissue(dbGorm))
+	Tissue.Get("/:id/delete", handlers.DeleteTissue(dbGorm))
+	Tissue.Delete("/:id", handlers.DestroyTissue(dbGorm))
+
+	// Dev routes
+	Dev := app.Group("/dev")
+	Dev.Get("/", handlers.GetDevView())
+	Dev.Post("/", handlers.ProcessIncomingScaffoldData(dbGorm))
 
 	// Setup static files
 	app.Static("/js", "./static/public/js")

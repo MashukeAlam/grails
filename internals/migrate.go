@@ -7,14 +7,13 @@ import (
 	"os/exec"
 
 	"github.com/joho/godotenv"
-
 )
 
 func getDatabaseURL() string {
 	err := godotenv.Load()
-    if err != nil {
-        log.Fatal("Error loading .env file")
-    } else {
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	} else {
 		fmt.Println("ENV Loaded.")
 	}
 	user := os.Getenv("DB_USER")
@@ -38,7 +37,7 @@ func runGoose(direction string) error {
 	return nil
 }
 
-func Migrate(direction string) {
+func MigrateOld(direction string) {
 	if direction != "up" && direction != "down" {
 		fmt.Println("Invalid migration direction. Use 'up' or 'down'.")
 		os.Exit(1)
