@@ -98,21 +98,25 @@ func Migrate(db *gorm.DB) {
 		}
 		fmt.Printf("Migration file %s created successfully.\n", migrationFileName)
 	} else {
-		// Append the migration code to the existing function
-		file, err := os.OpenFile(migrationFileName, os.O_APPEND|os.O_WRONLY, 0644)
+		content, err := os.ReadFile(migrationFileName)
 		if err != nil {
-			log.Fatalf("Failed to open migration file: %v", err)
+			log.Fatalf("Failed to read migration file: %v", err)
 		}
-		defer file.Close()
 
-		// Remove the closing brace of the function
-		file.Seek(-2, os.SEEK_END)
-
-		// Append the migration code
-		if _, err := file.WriteString(migrationCode + "}\n"); err != nil {
-			log.Fatalf("Failed to append to migration file: %v", err)
+		contentStr := string(content)
+		if strings.HasSuffix(contentStr, "}\n") {
+			contentStr = strings.TrimSuffix(contentStr, "}\n")
 		}
-		fmt.Printf("Appended migration code to %s.\n", migrationFileName)
+
+		contentStr += fmt.Sprintf("\n\t%s", migrationCode)
+		contentStr += "\n}\n"
+
+		err = os.WriteFile(migrationFileName, []byte(contentStr), 0644)
+		if err != nil {
+			log.Fatalf("Failed to write to migration file: %v", err)
+		}
+		fmt.Printf("Migration for %s appended to %s successfully.\n", modelName, migrationFileName)
+
 	}
 }
 
