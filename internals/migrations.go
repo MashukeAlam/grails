@@ -1,4 +1,4 @@
-// Never TOUCH this file please.
+// Package internals Never TOUCH this file please.
 package internals
 
 import (
@@ -25,8 +25,8 @@ func Migrate(db *gorm.DB) {
 	db.AutoMigrate(&models.Pen{})
 	db.AutoMigrate(&models.Tissue{})
 	db.AutoMigrate(&models.Perfume{})
-
-
-		db.AutoMigrate(&models.Card{})
+	db.AutoMigrate(&models.Mobile{})
+	db.AutoMigrate(&models.Smartphone{})
+	db.AutoMigrate(&models.Card{})
 
 }
