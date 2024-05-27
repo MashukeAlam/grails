@@ -2,7 +2,7 @@
 
 # Connect with the maintainer of this project
 [![Repo](https://img.shields.io/badge/telegram-link-cyan)](https://t.me/gograils)
-[![Repo](https://img.shields.io/badge/discord-link-cyan)](https://discord.com/invite/GJBbPUr3)
+[![Repo](https://img.shields.io/badge/discord-link-purple)](https://discord.com/invite/GJBbPUr3)
 
 
 ## Development
