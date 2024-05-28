@@ -4,14 +4,15 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
+	"github.com/MashukeAlam/grails/cmd"
+	"github.com/MashukeAlam/grails/handlers"
+	"github.com/MashukeAlam/grails/internals"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/template/html/v2"
 	"github.com/joho/godotenv"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	"github.com/MashukeAlam/grails/handlers"
-	"github.com/MashukeAlam/grails/internals"
 	"log"
 	"os"
 )
@@ -37,6 +38,7 @@ func createDatabase(db *sql.DB, dbName string) error {
 }
 
 func main() {
+	cmd.Execute()
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatalf("%sError loading .env file%s", Red, Reset)
