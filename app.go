@@ -10,8 +10,8 @@ import (
 	"github.com/joho/godotenv"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	"grails/handlers"
-	"grails/internals"
+	"github.com/MashukeAlam/grails/handlers"
+	"github.com/MashukeAlam/grails/internals"
 	"log"
 	"os"
 )

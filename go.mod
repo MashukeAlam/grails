@@ -1,4 +1,4 @@
-module grails
+module "github.com/MashukeAlam/grails"
 
 go 1.19
 

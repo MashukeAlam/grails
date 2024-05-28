@@ -3,7 +3,7 @@ package handlers
 import (
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
-	"grails/models" // Adjust the import path accordingly
+	"github.com/MashukeAlam/grails/models" // Adjust the import path accordingly
 )
 
 // GetSmartphones retrieves all Smartphones from the database

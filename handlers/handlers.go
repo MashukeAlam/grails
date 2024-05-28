@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"grails/database"
-	"grails/models"
+	"github.com/MashukeAlam/grails/database"
+	"github.com/MashukeAlam/grails/models"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/utils"

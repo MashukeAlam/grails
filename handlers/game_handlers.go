@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
-	"grails/models" // Adjust the import path accordingly
+	"github.com/MashukeAlam/grails/models" // Adjust the import path accordingly
 )
 
 // GetGames retrieves all games from the database

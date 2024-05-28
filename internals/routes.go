@@ -1,9 +1,9 @@
 package internals
 
 import (
+	"github.com/MashukeAlam/grails/handlers"
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
-	"grails/handlers"
 )
 
 func SetupRoutes(app *fiber.App, dbGorm *gorm.DB) {

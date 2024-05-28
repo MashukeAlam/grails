@@ -83,7 +83,7 @@ func appendMigrationCode(modelName string) {
 
 import (
 	"gorm.io/gorm"
-	"grails/models"
+	"github.com/MashukeAlam/grails/models"
 )
 
 func Migrate(db *gorm.DB) {
@@ -218,7 +218,7 @@ func generateHandlerFile(modelName string) {
 import (
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
-	"grails/models" // Adjust the import path accordingly
+	"github.com/MashukeAlam/grails/models" // Adjust the import path accordingly
 )
 
 // Get{{.ModelName}}s retrieves all {{.ModelName}}s from the database

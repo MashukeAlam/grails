@@ -1,8 +1,8 @@
 package database
 
 import (
-	"grails/models"
 	"fmt"
+	"github.com/MashukeAlam/grails/models"
 	"sync"
 )
 
