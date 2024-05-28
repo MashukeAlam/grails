@@ -4,19 +4,16 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/template/html/v2"
+	"github.com/joho/godotenv"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	"grails/database"
 	"grails/handlers"
 	"grails/internals"
 	"log"
 	"os"
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/logger"
-	"github.com/gofiber/fiber/v2/middleware/recover"
-	"github.com/joho/godotenv"
 )
 
 var DB *gorm.DB
@@ -107,27 +104,14 @@ func main() {
 	// Parse command-line flags
 	flag.Parse()
 
-	// Connected with database
-	database.Connect()
-
 	// Create fiber app
 	app := fiber.New(fiber.Config{
 		Prefork: *prod, // go run app.go -prod
 		Views:   engine,
 	})
 
-	// Middleware
-	app.Use(recover.New())
-	app.Use(logger.New())
-
-	// Setup static files
-	app.Static("/js", "./static/public/js")
-	app.Static("/img", "./static/public/img")
-	app.Static("/css", "./static/public/css")
-
+	app = internals.FiberAppStart(app)
 	internals.SetupRoutes(app, dbGorm)
-
-	// Handle not founds
 	app.Use(handlers.NotFound)
 
 	// Listen on port 5000
