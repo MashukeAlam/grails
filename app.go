@@ -12,8 +12,6 @@ import (
 	"grails/internals"
 	"log"
 	"os"
-	// "golang.org/x/text/cases"
-
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
@@ -42,15 +40,14 @@ func createDatabase(db *sql.DB, dbName string) error {
 }
 
 func main() {
-
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		log.Fatalf("%sError loading .env file%s", Red, Reset)
 	} else {
 		fmt.Printf("%sENV Loaded.%s\n", Green, Reset)
 	}
 
-	// Database connection string
+	// Database server connection string without database
 	dsn := os.Getenv("DB_USER") + ":" + os.Getenv("DB_PASSWORD") + "@tcp(" + os.Getenv("DB_HOST") + ":" + os.Getenv("DB_PORT") + ")/"
 	dbNot, err := sql.Open("mysql", dsn)
 	if err != nil {
@@ -65,7 +62,8 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// Create the
+	// Create the database if not exist
+	// TODO: send this back at other functions may be in internals
 	err = createDatabase(dbNot, os.Getenv("DB_NAME"))
 	if err != nil {
 		log.Fatalf("Failed to create database: %v", err)
@@ -73,6 +71,7 @@ func main() {
 		fmt.Printf("%sDatabase connected.%s\n", Green, Reset)
 	}
 
+	// Database connection string with DB
 	dsnWithDB := os.Getenv("DB_USER") + ":" + os.Getenv("DB_PASSWORD") + "@tcp(" + os.Getenv("DB_HOST") + ":" + os.Getenv("DB_PORT") + ")/" + os.Getenv("DB_NAME") + "?parseTime=true"
 	db, err := sql.Open("mysql", dsnWithDB)
 	if err != nil {
@@ -82,6 +81,7 @@ func main() {
 	}
 	defer db.Close()
 
+	// DBGORM
 	dbGorm, err := gorm.Open(mysql.Open(dsnWithDB), &gorm.Config{})
 	if err != nil {
 		log.Fatal("Failed to connect to database:", err)
