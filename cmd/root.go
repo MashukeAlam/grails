@@ -1,10 +1,13 @@
 package cmd
 
 import (
+	"bufio"
 	"fmt"
 	"github.com/spf13/cobra"
+	"io"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -34,11 +37,83 @@ var initCmd = &cobra.Command{
 	},
 }
 
+// copyDir copies a whole directory recursively
+func copyDir(src string, dst string) error {
+	var err error
+	var fds []os.FileInfo
+	var srcinfo os.FileInfo
+
+	if srcinfo, err = os.Stat(src); err != nil {
+		return err
+	}
+
+	if err = os.MkdirAll(dst, srcinfo.Mode()); err != nil {
+		return err
+	}
+
+	if fds, err = ioutil.ReadDir(src); err != nil {
+		return err
+	}
+
+	for _, fd := range fds {
+		srcfp := filepath.Join(src, fd.Name())
+		dstfp := filepath.Join(dst, fd.Name())
+
+		if fd.IsDir() {
+			if err = copyDir(srcfp, dstfp); err != nil {
+				return err
+			}
+		} else {
+			if err = copyFile(srcfp, dstfp); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+// copyFile copies a single file from src to dst
+func copyFile(src, dst string) error {
+	var err error
+	var srcfd *os.File
+	var dstfd *os.File
+	var srcinfo os.FileInfo
+
+	if srcfd, err = os.Open(src); err != nil {
+		return err
+	}
+	defer srcfd.Close()
+
+	if dstfd, err = os.Create(dst); err != nil {
+		return err
+	}
+	defer dstfd.Close()
+
+	if _, err = io.Copy(dstfd, srcfd); err != nil {
+		return err
+	}
+
+	if srcinfo, err = os.Stat(src); err != nil {
+		return err
+	}
+	return os.Chmod(dst, srcinfo.Mode())
+}
+
 var generateCmd = &cobra.Command{
 	Use:   "gen",
 	Short: "Generate project structure",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Generating project structure...")
+		reader := bufio.NewReader(os.Stdin)
+		fmt.Print("Enter project name: ")
+		projectName, _ := reader.ReadString('\n')
+		projectName = strings.TrimSpace(projectName)
+
+		if projectName == "" {
+			fmt.Println("Project name cannot be empty.")
+			return
+		}
+
+		fmt.Printf("Generating project structure for %s...\n", projectName)
 
 		dirs := []string{
 			"internals",
@@ -50,55 +125,24 @@ var generateCmd = &cobra.Command{
 		}
 
 		for _, dir := range dirs {
-			err := os.MkdirAll(dir, os.ModePerm)
+			fullPath := filepath.Join(projectName, dir)
+			err := os.MkdirAll(fullPath, os.ModePerm)
 			if err != nil {
-				fmt.Printf("Failed to create directory %s: %v\n", dir, err)
+				fmt.Printf("Failed to create directory %s: %v\n", fullPath, err)
 			} else {
-				fmt.Printf("Directory %s created successfully.\n", dir)
+				fmt.Printf("Directory %s created successfully.\n", fullPath)
 			}
+		}
+
+		// Assuming the source 'views' directory is located at "./grails/views"
+		srcViews := "./grails/views"
+		dstViews := filepath.Join(projectName, "views")
+
+		err := copyDir(srcViews, dstViews)
+		if err != nil {
+			fmt.Printf("Failed to copy views directory: %v\n", err)
+		} else {
+			fmt.Printf("Views directory copied successfully to %s.\n", dstViews)
 		}
 	},
 }
-
-func appendRoutesCode1() error {
-	// Define the file path
-	filePath := "habijabi/habijabi.txt"
-	// Check if the file already exists
-	_, err := os.Stat(filePath)
-	if os.IsNotExist(err) {
-		// Create the file if it doesn't exist
-		file, err := os.Create(filePath)
-		if err != nil {
-			fmt.Sprintf("%s", err)
-			return err
-		}
-		defer file.Close()
-	}
-
-	// Read the existing content of the file
-	content, err := ioutil.ReadFile(filePath)
-	if err != nil {
-		return err
-	}
-
-	// Convert content to string
-	fileContent := string(content)
-
-	codeToAdd := fmt.Sprint("func appendRoutesCode(codeToAdd string) error {\n\t// Define the file path\n\tfilePath := \"internals/routes.go\"\n\n\t// Check if the file already exists\n\t_, err := os.Stat(filePath)\n\tif os.IsNotExist(err) {\n\t\t// Create the file if it doesn't exist\n\t\tfile, err := os.Create(filePath)\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\tdefer file.Close()\n\t}\n\n\t// Read the existing content of the file\n\tcontent, err := ioutil.ReadFile(filePath)\n\tif err != nil {\n\t\treturn err\n\t}\n\n\t// Convert content to string\n\tfileContent := string(content)\n\n\t// Find the index of closing braces of SetupRoutes function\n\tidx := strings.LastIndex(fileContent, \"}\")\n\n\t// Append the codeToAdd before the closing braces\n\tnewContent := fileContent[:idx] + codeToAdd + \"\\n}\" + fileContent[idx+1:]\n\n\t// Write the updated content back to the file\n\terr = ioutil.WriteFile(filePath, []byte(newContent), 0644)\n\tif err != nil {\n\t\treturn err\n\t}\n\n\treturn nil\n}")
-
-	// Find the index of closing braces of SetupRoutes function
-	idx := strings.LastIndex(fileContent, "}")
-
-	// Append the codeToAdd before the closing braces
-	newContent := fileContent[:idx] + codeToAdd + "\n}" + fileContent[idx+1:]
-
-	// Write the updated content back to the file
-	err = ioutil.WriteFile(filePath, []byte(newContent), 0644)
-	if err != nil {
-		return err
-	}
-	fmt.Sprintf("here")
-	return nil
-}
-
-// Define other commands similarly
