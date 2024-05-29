@@ -1,0 +1,81 @@
+<div class="container" x-data="scaffoldForm()">
+    <h1>Create Scaffold</h1>
+    <form @submit.prevent="submitForm">
+        <div>
+            <label for="table_name">Table Name:</label>
+            <input type="text" id="table_name" x-model="tableName" required>
+        </div>
+        <div>
+            <h2>Fields</h2>
+            <template x-for="(field, index) in fields" :key="index">
+                <div class="field-row">
+                    <input type="text" placeholder="Field Name" x-model="field.name" required>
+                    <select x-model="field.type" required>
+                        <option value="" disabled>Select Type</option>
+                        <option value="string">VARCHAR(255)</option>
+                        <option value="text">TEXT</option>
+                        <option value="int">INT</option>
+                        <option value="time.Time">TIMESTAMP</option>
+                        <option value="int">TINYINT(1)</option>
+                        <!-- Add other types here -->
+                    </select>
+                    <button type="button" @click="removeField(index)">Remove</button>
+                </div>
+            </template>
+            <button type="button" @click="addField()">Add Field</button>
+        </div>
+        <div>
+            <label for="table_name">Reference Table Name:</label>
+            <input type="text" id="ref_table_name" x-model="refTableName">
+        </div>
+        <div>
+            <button type="submit">Create Scaffold</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    function scaffoldForm() {
+        return {
+            tableName: '',
+            refTableName: '',
+            fields: [
+                { name: '', type: '' }
+            ],
+            addField() {
+                this.fields.push({ name: '', type: '' });
+            },
+            removeField(index) {
+                this.fields.splice(index, 1);
+            },
+            async submitForm() {
+                const scaffoldData = {
+                    tableName: this.tableName,
+                    fields: this.fields,
+                    refTableName: this.refTableName
+                };
+
+                try {
+                    const response = await fetch('/dev', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ scaffoldData })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+
+                    const result = await response.json();
+                    console.log('Success:', result);
+                    // Handle success - redirect or show a success message
+                } catch (error) {
+                    console.error('Error:', error);
+                    // Handle error - show an error message
+                }
+            }
+        }
+    }
+</script>
