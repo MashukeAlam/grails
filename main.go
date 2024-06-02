@@ -17,6 +17,12 @@ const (
 	red    = "\033[31m"
 	green  = "\033[32m"
 	yellow = "\033[33m"
+	blue      = "\033[34m"
+	magenta   = "\033[35m"
+	cyan      = "\033[36m"
+	bold      = "\033[1m"
+	underline = "\033[4m"
+	blink     = "\033[5m"
 )
 
 func main() {
@@ -35,8 +41,7 @@ func main() {
 					fmt.Print("Enter database name: ")
 					databaseName := readInput()
 
-					fmt.Printf("Project Name: %s\n", projectName)
-					fmt.Printf("Database Name: %s\n", databaseName)
+					fmt.Printf("%s%sSetup intializing project %s with %s db.%s\n", bold, magenta, projectName,databaseName, reset)
 
 					repoURL := "https://github.com/MashukeAlam/grails-template.git"
 
@@ -47,7 +52,7 @@ func main() {
 					}
 
 					// Clone the repository into the project directory
-					fmt.Printf("%s📂 Cloning repository...%s\n", yellow, reset)
+					fmt.Printf("%s%s📂 Cloning repository...%s\n", bold, cyan, reset)
 					cmd := exec.Command("git", "clone", repoURL, projectName)
 					cmd.Stdout = nil
 					cmd.Stderr = nil
@@ -55,7 +60,7 @@ func main() {
 					if err != nil {
 						log.Fatalf("%s❌ Failed to clone the repository: %v%s\n", red, err, reset)
 					}
-					fmt.Printf("%s✅ Repository cloned successfully!%s\n", green, reset)
+					fmt.Printf("%s%s✅ Repository cloned successfully!%s\n", bold, green, reset)
 
 					// Change directory to the cloned project
 					err = os.Chdir(projectName)
@@ -69,11 +74,11 @@ func main() {
 					if err != nil {
 						log.Fatalf("%s❌ Failed to edit module name: %v%s\n", red, err, reset)
 					}
-					fmt.Printf("%s📄 Final touch...%s\n", yellow, reset)
+					fmt.Printf("%s%s📄 Final touch...%s\n", blink, yellow, reset)
 
 					// Ask the user if they want to run 'go mod tidy'
 					reader := bufio.NewReader(os.Stdin)
-					fmt.Printf("%s❓ Do you want to run 'go mod tidy'? (y/n): %s", yellow, reset)
+					fmt.Printf("%s%s%s❓ Do you want to run 'go mod tidy'? (y/n): %s", bold, underline, yellow, reset)
 					response, err := reader.ReadString('\n')
 					if err != nil {
 						log.Fatalf("%s❌ Failed to read input: %v%s\n", red, err, reset)
@@ -105,13 +110,13 @@ func main() {
 					if err != nil {
 						log.Fatalf("%s❌ Failed to commit changes: %v%s\n", red, err, reset)
 					}
-					fmt.Printf("%s✅ Project setup complete!%s\n", green, reset)
+					fmt.Printf("%s%s✅ Project setup complete!%s\n", bold, green, reset)
 
 					// Provide instructions to the user
-					fmt.Printf("%sTo get going %s\n", yellow, reset)
-					fmt.Printf("1. %s cd %s %s\n", yellow, projectName, reset)
-					fmt.Printf("1. %s go run app.go %s\n", yellow, reset)
-					fmt.Printf("%s🚀 All set! Happy coding!%s\n", green, reset)
+					fmt.Printf("%sTo get going %s\n", magenta, reset)
+					fmt.Printf("1. %s cd %s %s\n", cyan, projectName, reset)
+					fmt.Printf("1. %s go run app.go %s\n", cyan, reset)
+					fmt.Printf("%s%s🚀 All set! Happy coding!%s\n", bold, green, reset)
 					return nil
 				},
 			},
