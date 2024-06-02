@@ -12,6 +12,13 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
+const (
+	reset  = "\033[0m"
+	red    = "\033[31m"
+	green  = "\033[32m"
+	yellow = "\033[33m"
+)
+
 func main() {
 	app := &cli.App{
 		Commands: []*cli.Command{
@@ -40,31 +47,34 @@ func main() {
 					}
 
 					// Clone the repository into the project directory
-					cmd := exec.Command("git", "clone", repoURL, projectDir)
-					cmd.Stdout = os.Stdout
-					cmd.Stderr = os.Stderr
-					if err := cmd.Run(); err != nil {
-						log.Fatalf("Failed to clone repository: %v", err)
+					fmt.Printf("%s📂 Cloning repository...%s\n", yellow, reset)
+					cmd := exec.Command("git", "clone", repoURL, projectName)
+					cmd.Stdout = nil
+					cmd.Stderr = nil
+					err := cmd.Run()
+					if err != nil {
+						log.Fatalf("%s❌ Failed to clone the repository: %v%s\n", red, err, reset)
+					}
+					fmt.Printf("%s✅ Repository cloned successfully!%s\n", green, reset)
+
+					// Change directory to the cloned project
+					err = os.Chdir(projectName)
+					if err != nil {
+						log.Fatalf("%s❌ Failed to change directory to %s: %v%s\n", red, projectName, err, reset)
 					}
 
-					// Change to the project directory
-					if err := os.Chdir(projectDir); err != nil {
-						log.Fatalf("Failed to change directory: %v", err)
+					// Edit the module name using go mod edit
+					cmd = exec.Command("go", "mod", "edit", "-module", projectName)
+					err = cmd.Run()
+					if err != nil {
+						log.Fatalf("%s❌ Failed to edit module name: %v%s\n", red, err, reset)
 					}
-
-					// Update the module name in go.mod
-					modCmd := exec.Command("go", "mod", "edit", "-module", projectName)
-					modCmd.Stdout = os.Stdout
-					modCmd.Stderr = os.Stderr
-					if err := modCmd.Run(); err != nil {
-						log.Fatalf("Failed to update module name: %v", err)
-					}
+					fmt.Printf("%s✅ Project setup complete!%s\n", green, reset)
 
 					// Provide instructions to the user
-					fmt.Println("\nProject setup complete!")
-					fmt.Println("Next steps:")
-					fmt.Println("1. Run `go mod tidy` to clean up the module dependencies.")
-					fmt.Println("2. Start coding and enjoy your project!")
+					fmt.Printf("%sOne step that is left: %s", yellow, reset)
+					fmt.Printf("1. %s🔄 Running 'go mod tidy'...%s\n", yellow, reset)
+					fmt.Printf("%s🚀 All set! Happy coding!%s\n", green, reset)
 					return nil
 				},
 			},
