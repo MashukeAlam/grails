@@ -69,6 +69,42 @@ func main() {
 					if err != nil {
 						log.Fatalf("%s❌ Failed to edit module name: %v%s\n", red, err, reset)
 					}
+					fmt.Printf("%s📄 Final touch...%s\n", yellow, reset)
+
+					// Ask the user if they want to run 'go mod tidy'
+					reader := bufio.NewReader(os.Stdin)
+					fmt.Printf("%s❓ Do you want to run 'go mod tidy'? (y/n): %s", yellow, reset)
+					response, err := reader.ReadString('\n')
+					if err != nil {
+						log.Fatalf("%s❌ Failed to read input: %v%s\n", red, err, reset)
+					}
+					response = strings.TrimSpace(response)
+
+					if strings.ToLower(response) == "y" {
+						fmt.Printf("%s🔄 Running 'go mod tidy'...%s\n", yellow, reset)
+						// Run 'go mod tidy'
+						cmd = exec.Command("go", "mod", "tidy")
+						cmd.Stdout = nil
+						cmd.Stderr = nil
+						err = cmd.Run()
+						if err != nil {
+							log.Fatalf("%s❌ Failed to run 'go mod tidy': %v%s\n", red, err, reset)
+						}
+						fmt.Printf("%s✅ 'go mod tidy' completed successfully!%s\n", green, reset)
+					} else {
+						fmt.Printf("%s🚫 Skipped 'go mod tidy'%s\n", yellow, reset)
+					}
+					// Git commit the changes
+					cmd = exec.Command("git", "add", "go.mod", "go.sum")
+					err = cmd.Run()
+					if err != nil {
+						log.Fatalf("%s❌ Failed to stage changes: %v%s\n", red, err, reset)
+					}
+					cmd = exec.Command("git", "commit", "-m", "Grails project setup and module renamed")
+					err = cmd.Run()
+					if err != nil {
+						log.Fatalf("%s❌ Failed to commit changes: %v%s\n", red, err, reset)
+					}
 					fmt.Printf("%s✅ Project setup complete!%s\n", green, reset)
 
 					// Provide instructions to the user
