@@ -108,8 +108,9 @@ func main() {
 					fmt.Printf("%s✅ Project setup complete!%s\n", green, reset)
 
 					// Provide instructions to the user
-					fmt.Printf("%sOne step that is left: %s", yellow, reset)
-					fmt.Printf("1. %s🔄 Running 'go mod tidy'...%s\n", yellow, reset)
+					fmt.Printf("%sTo get going %s\n", yellow, reset)
+					fmt.Printf("1. %s cd %s %s\n", yellow, projectName, reset)
+					fmt.Printf("1. %s go run app.go %s\n", yellow, reset)
 					fmt.Printf("%s🚀 All set! Happy coding!%s\n", green, reset)
 					return nil
 				},
