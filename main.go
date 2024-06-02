@@ -114,8 +114,8 @@ func main() {
 
 					// Provide instructions to the user
 					fmt.Printf("%sTo get going %s\n", magenta, reset)
-					fmt.Printf("1. %s cd %s %s\n", cyan, projectName, reset)
-					fmt.Printf("1. %s go run app.go %s\n", cyan, reset)
+					fmt.Printf("\t1. %s cd %s %s\n", cyan, projectName, reset)
+					fmt.Printf("\t2. %s go run app.go %s\n", cyan, reset)
 					fmt.Printf("%s%s🚀 All set! Happy coding!%s\n", bold, green, reset)
 					return nil
 				},
