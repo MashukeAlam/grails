@@ -200,4 +200,15 @@ func SetupRoutes(app *fiber.App, dbGorm *gorm.DB) {
 	Mouse.Get("/:id/delete", handlers.DeleteMouse(dbGorm))
 	Mouse.Delete("/:id", handlers.DestroyMouse(dbGorm))
 
+
+// Vat routes
+Vat := app.Group("/Vats")
+Vat.Get("/", handlers.GetVats(dbGorm))
+Vat.Get("/insert", handlers.InsertVat())
+Vat.Post("/", handlers.CreateVat(dbGorm))
+Vat.Get("/:id/edit", handlers.EditVat(dbGorm))
+Vat.Put("/:id", handlers.UpdateVat(dbGorm))
+Vat.Get("/:id/delete", handlers.DeleteVat(dbGorm))
+Vat.Delete("/:id", handlers.DestroyVat(dbGorm))
+
 }

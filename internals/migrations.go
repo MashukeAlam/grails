@@ -29,4 +29,7 @@ func Migrate(db *gorm.DB) {
 	db.AutoMigrate(&models.Smartphone{})
 	db.AutoMigrate(&models.Card{})
 	db.AutoMigrate(&models.Mouse{})
+
+		db.AutoMigrate(&models.Vat{})
+
 }
