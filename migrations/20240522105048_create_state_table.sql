@@ -1,0 +1,11 @@
+-- +goose Up
+
+CREATE TABLE state (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- +goose Down
+
+DROP TABLE state;

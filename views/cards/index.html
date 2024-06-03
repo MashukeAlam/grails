@@ -1,0 +1,16 @@
+
+    <h2>All Card</h2>
+    <a href="/Cards/insert">Add +</a>
+    <table>
+        <thead>
+            <tr><th>type</th><th>face</th><th>Actions</th><th>Created At</th></tr>
+        </thead>
+        <tbody>{{range .Records}}<tr><td>{{.Type}}</td><td>{{.Face}}</td>
+        <td>
+            <a href="cards/{{.ID}}/edit">Edit</a> |
+            <a href="cards/{{.ID}}/delete">Delete</a>
+        </td>
+        <td>{{.CreatedAt}}</td>
+    </tr>{{end}}</tbody>
+    </table>
+    

@@ -1,0 +1,13 @@
+-- +goose Up
+
+CREATE TABLE player (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(300) NOT NULL,
+  game INT NOT NULL,
+  FOREIGN KEY (game) REFERENCES game(id),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- +goose Down
+
+DROP TABLE player;

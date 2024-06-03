@@ -1,0 +1,24 @@
+<h2>Girl</h2>
+<a href="/Girl/insert">Add +</a>
+<table>
+    <thead>
+    <tr>
+        {{range .Fields}}
+        <th>{{.Name}}</th>
+        {{end}}
+        <th>Actions</th>
+        <th>Created At</th>
+    </tr>
+    </thead>
+    <tbody>
+    {{range .Girls}}
+    <tr>
+        {{range .Fields}}
+        <td>{{.Value}}</td>
+        {{end}}
+        <td><a href="/Girl/{{.ID}}/edit">Edit</a>|<a href="/Girl/{{.ID}}/delete">Del</a></td>
+        <td>{{.CreatedAt}}</td>
+    </tr>
+    {{end}}
+    </tbody>
+</table>
