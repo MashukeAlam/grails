@@ -1,0 +1,16 @@
+
+    <h2>All Smartphone</h2>
+    <a href="/Smartphones/insert">Add +</a>
+    <table>
+        <thead>
+            <tr><th>brand</th><th>price</th><th>Actions</th><th>Created At</th></tr>
+        </thead>
+        <tbody>{{range .Records}}<tr><td>{{.Brand}}</td><td>{{.Price}}</td>
+        <td>
+            <a href="/{{.ID}}/edit">Edit</a> |
+            <a href="/{{.ID}}/delete">Delete</a>
+        </td>
+        <td>{{.CreatedAt}}</td>
+    </tr>{{end}}</tbody>
+    </table>
+    
