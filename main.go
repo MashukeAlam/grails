@@ -69,11 +69,11 @@ func main() {
 					}
 
 					// Edit the module name using go mod edit
-					cmd = exec.Command("go", "mod", "edit", "-module", projectName)
-					err = cmd.Run()
-					if err != nil {
-						log.Fatalf("%s❌ Failed to edit module name: %v%s\n", red, err, reset)
-					}
+					// cmd = exec.Command("go", "mod", "edit", "-module", projectName)
+					// err = cmd.Run()
+					// if err != nil {
+					// 	log.Fatalf("%s❌ Failed to edit module name: %v%s\n", red, err, reset)
+					// }
 					fmt.Printf("%s%s📄 Final touch...%s\n", blink, yellow, reset)
 
 					// Ask the user if they want to run 'go mod tidy'
