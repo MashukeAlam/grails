@@ -99,6 +99,19 @@ func main() {
 						}
 					}
 
+					// Git commit the changes
+					cmd = exec.Command("git", "add", ".")
+					err = cmd.Run()
+					if err != nil {
+						log.Fatalf("%s❌ Failed to stage changes: %v%s\n", red, err, reset)
+					}
+					commitMessage = fmt.Sprintf("Module name updated.")
+					cmd = exec.Command("git", "commit", "-m", commitMessage)
+					err = cmd.Run()
+					if err != nil {
+						log.Fatalf("%s❌ Failed to commit changes: %v%s\n", red, err, reset)
+					}
+
 					// Append DB_NAME and PROJECT_NAME to .env file
 					envFile := ".env"
 					err = appendToFile(envFile, "DB_NAME", projectName)
@@ -108,6 +121,19 @@ func main() {
 					err = appendToFile(envFile, "PROJECT_NAME", projectName)
 					if err != nil {
 						log.Fatalf("%s❌ Failed to append PROJECT_NAME to .env file: %v%s\n", red, err, reset)
+					}
+
+					// Git commit the changes
+					cmd = exec.Command("git", "add", ".")
+					err = cmd.Run()
+					if err != nil {
+						log.Fatalf("%s❌ Failed to stage changes: %v%s\n", red, err, reset)
+					}
+					commitMessage = fmt.Sprintf(".env file is changed according to this projects")
+					cmd = exec.Command("git", "commit", "-m", commitMessage)
+					err = cmd.Run()
+					if err != nil {
+						log.Fatalf("%s❌ Failed to commit changes: %v%s\n", red, err, reset)
 					}
 
 					fmt.Printf("%s%s📄 Final touch...%s\n", blink, yellow, reset)
