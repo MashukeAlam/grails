@@ -88,7 +88,7 @@ func main() {
 					// Replace "github.com/MashukeAlam/grails-template" with projectName in specified files
 					filesToEdit := []string{
 						"handlers/dev_handlers.go",
-						"internals/migrations.go",
+						"helpers/migrations.go",
 						"internals/routes.go",
 						"app.go",
 					}
