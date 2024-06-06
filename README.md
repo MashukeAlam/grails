@@ -8,7 +8,7 @@
 
 ## Development
 ```bash
-go install github.com/MashukeAlam/grails@v0.9.9
+go install github.com/MashukeAlam/grails@v0.1.0
 ```
 ```azure
 grails gen

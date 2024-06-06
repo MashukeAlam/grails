@@ -105,7 +105,7 @@ func main() {
 					if err != nil {
 						log.Fatalf("%s❌ Failed to stage changes: %v%s\n", red, err, reset)
 					}
-					commitMessage = fmt.Sprintf("Module name updated.")
+					commitMessage = fmt.Sprintf("Module name in all other relevant files updated.")
 					cmd = exec.Command("git", "commit", "-m", commitMessage)
 					err = cmd.Run()
 					if err != nil {
@@ -137,6 +137,13 @@ func main() {
 					}
 
 					fmt.Printf("%s%s📄 Final touch...%s\n", blink, yellow, reset)
+
+					// Git commit the changes
+					cmd = exec.Command("git", "remote", "remove", "origin")
+					err = cmd.Run()
+					if err != nil {
+						log.Fatalf("%s❌ Failed to stage changes: %v%s\n", red, err, reset)
+					}
 
 					// Ask the user if they want to run 'go mod tidy'
 					reader := bufio.NewReader(os.Stdin)
