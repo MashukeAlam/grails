@@ -1,4 +1,4 @@
-# Grails - A Go web framework for Rails lovers 💚!
+# Grails - A Go web framework for **rapid** development.
 
 # Connect with the maintainer of this project
 [![Repo](https://img.shields.io/badge/telegram-link-cyan)](https://t.me/gograils)
