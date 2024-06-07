@@ -91,6 +91,7 @@ func main() {
 						"helpers/migrations.go",
 						"internals/routes.go",
 						"app.go",
+						"helpers/misc_helpers.go",
 					}
 					for _, file := range filesToEdit {
 						err = replaceInFile(file, "github.com/MashukeAlam/grails-template", projectName)
