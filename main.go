@@ -183,7 +183,7 @@ func main() {
 				Aliases: []string{"v"},
 				Usage:   "show the version",
 				Action: func(cCtx *cli.Context) error {
-					fmt.Println("GRAILS Version: 0.9.2beta")
+					fmt.Println("GRAILS Version: 0.1.1beta")
 					return nil
 				},
 			},
