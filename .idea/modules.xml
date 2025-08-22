@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/grails.iml" filepath="$PROJECT_DIR$/.idea/grails.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/marshallgo.iml" filepath="$PROJECT_DIR$/.idea/marshallgo.iml" />
     </modules>
   </component>
 </project>

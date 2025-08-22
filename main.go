@@ -39,7 +39,7 @@ func main() {
 
 					fmt.Printf("%s%sSetup intializing project %s under database with same name.%s\n", bold, magenta, projectName, reset)
 
-					repoURL := "https://github.com/MashukeAlam/grails-template.git"
+					repoURL := "https://github.com/MashukeAlam/marshallgo-template.git"
 
 					// Create the project directory
 					projectDir := filepath.Join(".", projectName)
@@ -94,7 +94,7 @@ func main() {
 						"helpers/misc_helpers.go",
 					}
 					for _, file := range filesToEdit {
-						err = replaceInFile(file, "github.com/MashukeAlam/grails-template", projectName)
+						err = replaceInFile(file, "github.com/MashukeAlam/marshallgo-template", projectName)
 						if err != nil {
 							log.Fatalf("%s❌ Failed to replace text in %s: %v%s\n", red, file, err, reset)
 						}
@@ -183,7 +183,7 @@ func main() {
 				Aliases: []string{"v"},
 				Usage:   "show the version",
 				Action: func(cCtx *cli.Context) error {
-					fmt.Println("GRAILS Version: 0.1.1beta")
+					fmt.Println("MarshallGo Version: 0.1.1beta")
 					return nil
 				},
 			},

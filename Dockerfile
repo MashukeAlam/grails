@@ -2,7 +2,7 @@
 FROM golang:1.19 AS build
 
 # `boilerplate` should be replaced with your project name
-WORKDIR /go/src/grails
+WORKDIR /go/src/marshallgo
 
 # Copy all the Code and stuff to compile everything
 COPY . .

@@ -1,4 +1,4 @@
-project_name = grails
+project_name = marshallgo
 image_name = gofiber:latest
 
 help: ## This help dialog.
